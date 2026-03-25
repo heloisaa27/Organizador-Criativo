@@ -1,5 +1,10 @@
-/* ===== GRID ===== */
+/* botão criar */
+.create-character-btn {
+  margin-top: 10px;
+  width: fit-content;
+}
 
+/* grid */
 .characters-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -7,8 +12,7 @@
   margin-top: 16px;
 }
 
-/* ===== CARD ===== */
-
+/* card */
 .character-card {
   background: #fff;
   border-radius: 16px;
@@ -19,34 +23,29 @@
 
   position: relative;
   transition: 0.2s;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .character-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-/* ===== CONTEÚDO ===== */
-
-.character-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-/* ===== HEADER ===== */
-
+/* header */
 .character-header {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* avatar azul claro */
+/* avatar */
 .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-
   background: #dbeafe;
 }
 
@@ -57,7 +56,7 @@
   font-weight: 600;
 }
 
-/* papel */
+/* tag */
 .tag {
   font-size: 12px;
   background: #dbeafe;
@@ -73,34 +72,33 @@
   color: #666;
 }
 
-/* ===== BARRINHAS (igual protótipo) ===== */
-
+/* cores */
 .character-bars {
   display: flex;
   gap: 8px;
+  position: relative;
+  z-index: 1;
 }
 
 .character-bars div {
   height: 16px;
   flex: 1;
   border-radius: 8px;
-
-  background: #c7d2fe;
 }
 
-/* ===== AÇÕES (MESMO PADRÃO DASHBOARD) ===== */
-
+/* ações */
 .character-card .card-actions {
-  position: absolute;
-  inset: 0;
-
+  position: static;
   pointer-events: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
 }
 
 .character-card .card-actions button {
   opacity: 0;
   transition: 0.2s;
-
   pointer-events: auto;
 }
 
@@ -108,16 +106,78 @@
   opacity: 1;
 }
 
-/* editar */
+/* posições */
 .character-card .edit {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
 }
 
-/* deletar */
 .character-card .delete {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 8px;
+  right: 8px;
+  z-index: 2;
 }
+
+.empty-state {
+  margin-top: 20px;
+
+  border: 2px dashed #d1d5db;
+  border-radius: 20px;
+
+  padding: 40px 20px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* ícone */
+.empty-icon {
+  font-size: 52px;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+/* título */
+.empty-state h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+
+  margin-bottom: 6px;
+}
+
+/* descrição principal */
+.empty-description {
+  font-size: 14px;
+  color: #666;
+
+  margin-bottom: 10px;
+}
+
+/* texto secundário (igual ao print) */
+.empty-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+
+  margin-bottom: 24px;
+}
+
+/* botão grande */
+.empty-action {
+  width: 100%;
+  max-width: 500px;
+
+  padding: 14px;
+
+  border-radius: 14px;
+  font-size: 15px;
+}
+

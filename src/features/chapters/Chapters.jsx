@@ -1,46 +1,46 @@
 import { useState } from "react"
 import { salvarCapitulos } from "./chaptersStore"
 
+import Button from "../../components/ui/Button"
+import EmptyState from "../../components/ui/EmptyState"
+import BaseModal from "../../components/modals/BaseModal"
+
+import { FiEdit2, FiTrash2, FiBookOpen } from "react-icons/fi"
+
 export default function Chapters({ projeto }) {
 
   const [capitulos, setCapitulos] = useState(projeto.capitulos || [])
-
   const [capituloAtivo, setCapituloAtivo] = useState(null)
 
   const [mostrarModal, setMostrarModal] = useState(false)
   const [editando, setEditando] = useState(null)
-
   const [confirmDelete, setConfirmDelete] = useState(null)
 
   const [titulo, setTitulo] = useState("")
-  const [texto, setTexto] = useState("")
 
-  // -------- CRIAR / EDITAR --------
+  // CRIAR / EDITAR
 
   function abrirCriar() {
     setTitulo("")
-    setTexto("")
     setEditando(null)
     setMostrarModal(true)
   }
 
   function abrirEditar(c) {
     setTitulo(c.titulo)
-    setTexto(c.texto || "")
     setEditando(c)
     setMostrarModal(true)
   }
 
   function salvar() {
-
-    if (!titulo) return
+    if (!titulo.trim()) return
 
     let atualizados
 
     if (editando) {
       atualizados = capitulos.map(c =>
         c.id === editando.id
-          ? { ...c, titulo, texto }
+          ? { ...c, titulo }
           : c
       )
     } else {
@@ -69,7 +69,9 @@ export default function Chapters({ projeto }) {
     setConfirmDelete(null)
   }
 
-  // -------- VIEW LISTA --------
+  // =========================
+  // LISTA
+  // =========================
 
   if (!capituloAtivo) {
     return (
@@ -77,38 +79,80 @@ export default function Chapters({ projeto }) {
 
         <h2>Capítulos</h2>
 
-        <button onClick={abrirCriar}>
+        <Button
+          variant="primary"
+          className="create-chapter-btn"
+          onClick={abrirCriar}
+        >
           + Criar Capítulo
-        </button>
+        </Button>
 
         {capitulos.length === 0 ? (
-          <p>Nenhum capítulo criado</p>
+          <EmptyState
+            icon={FiBookOpen}
+            title="Nenhum capítulo criado ainda"
+            description="Comece criando seu primeiro capítulo"
+            hint="Organize sua história em capítulos para facilitar a escrita"
+            actionText="Criar Capítulo"
+            onAction={abrirCriar}
+          />
         ) : (
-          <div>
+          <div className="chapters-grid">
+
             {capitulos.map((c) => (
-              <div key={c.id}>
+              <div
+                key={c.id}
+                className="chapter-card"
+                onClick={() => setCapituloAtivo(c)}
+              >
 
-                <h3 onClick={() => setCapituloAtivo(c)}>
-                  {c.titulo}
-                </h3>
+                <h3>{c.titulo}</h3>
 
-                <button onClick={() => abrirEditar(c)}>
-                  Editar
-                </button>
+                <p className="chapter-preview">
+                  {c.texto
+                    ? c.texto.slice(0, 80) + "..."
+                    : "Sem conteúdo ainda"}
+                </p>
 
-                <button onClick={() => setConfirmDelete(c)}>
-                  Deletar
-                </button>
+                <div className="card-actions">
+
+                  <button
+                    className="edit"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      abrirEditar(c)
+                    }}
+                  >
+                    <FiEdit2 />
+                  </button>
+
+                  <button
+                    className="delete"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setConfirmDelete(c)
+                    }}
+                  >
+                    <FiTrash2 />
+                  </button>
+
+                </div>
 
               </div>
             ))}
+
           </div>
         )}
 
+        {/* MODAL */}
         {mostrarModal && (
-          <div>
+          <BaseModal onClose={() => setMostrarModal(false)}>
 
-            <h3>{editando ? "Editar Capítulo" : "Novo Capítulo"}</h3>
+            <div className="modal-header">
+              <h3 className="modal-title">
+                {editando ? "Editar Capítulo" : "Novo Capítulo"}
+              </h3>
+            </div>
 
             <input
               placeholder="Título do capítulo"
@@ -116,49 +160,60 @@ export default function Chapters({ projeto }) {
               onChange={(e) => setTitulo(e.target.value)}
             />
 
-            <button onClick={salvar}>
-              Salvar
-            </button>
+            <div className="modal-actions">
+              <Button variant="secondary" onClick={() => setMostrarModal(false)}>
+                Cancelar
+              </Button>
 
-            <button onClick={() => setMostrarModal(false)}>
-              Cancelar
-            </button>
+              <Button variant="primary" onClick={salvar}>
+                Salvar
+              </Button>
+            </div>
 
-          </div>
+          </BaseModal>
         )}
 
+        {/* DELETE */}
         {confirmDelete && (
-          <div>
+          <BaseModal onClose={() => setConfirmDelete(null)}>
 
-            <p>Deseja deletar "{confirmDelete.titulo}"?</p>
+            <p className="modal-text">
+              Deseja deletar <strong>{confirmDelete.titulo}</strong>?
+            </p>
 
-            <button onClick={deletarConfirmado}>
-              Sim
-            </button>
+            <div className="modal-actions">
+              <Button variant="danger" onClick={deletarConfirmado}>
+                Deletar
+              </Button>
 
-            <button onClick={() => setConfirmDelete(null)}>
-              Cancelar
-            </button>
+              <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
+                Cancelar
+              </Button>
+            </div>
 
-          </div>
+          </BaseModal>
         )}
 
       </div>
     )
   }
 
-  // -------- VIEW ESCRITA --------
+  // EDITOR
 
   return (
-    <div>
+    <div className="chapter-editor">
 
-      <button onClick={() => setCapituloAtivo(null)}>
+      <Button
+        variant="secondary"
+        onClick={() => setCapituloAtivo(null)}
+      >
         ← Voltar
-      </button>
+      </Button>
 
       <h2>{capituloAtivo.titulo}</h2>
 
       <textarea
+        className="chapter-textarea"
         value={capituloAtivo.texto || ""}
         onChange={(e) => {
 

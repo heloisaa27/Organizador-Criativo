@@ -1,13 +1,18 @@
 import { useState } from "react"
 import { salvarPersonagens } from "./characterStore"
 
+import Button from "../../components/ui/Button"
+import EmptyState from "../../components/ui/EmptyState"
+import BaseModal from "../../components/modals/BaseModal"
+
+import { FiEdit2, FiTrash2, FiUser } from "react-icons/fi"
+
 export default function Characters({ projeto }) {
 
   const [personagens, setPersonagens] = useState(projeto.personagens || [])
 
   const [mostrarModal, setMostrarModal] = useState(false)
   const [editando, setEditando] = useState(null)
-
   const [confirmDelete, setConfirmDelete] = useState(null)
 
   const [nome, setNome] = useState("")
@@ -37,6 +42,7 @@ export default function Characters({ projeto }) {
 
   function adicionarCor() {
     if (!novaCor) return
+    if (cores.includes(novaCor)) return
     setCores([...cores, novaCor])
   }
 
@@ -45,7 +51,7 @@ export default function Characters({ projeto }) {
   }
 
   function salvar() {
-    if (!nome) return
+    if (!nome.trim()) return
 
     let atualizados
 
@@ -61,7 +67,7 @@ export default function Characters({ projeto }) {
         nome,
         descricao,
         papel,
-        cores // ✅ CORRETO
+        cores
       }
 
       atualizados = [...personagens, novo]
@@ -74,16 +80,10 @@ export default function Characters({ projeto }) {
     setEditando(null)
   }
 
-  function confirmarDeletar(p) {
-    setConfirmDelete(p)
-  }
-
   function deletarConfirmado() {
     const atualizados = personagens.filter(p => p.id !== confirmDelete.id)
-
     setPersonagens(atualizados)
     salvarPersonagens(projeto.id, atualizados)
-
     setConfirmDelete(null)
   }
 
@@ -92,12 +92,23 @@ export default function Characters({ projeto }) {
 
       <h2>Personagens</h2>
 
-      <button className="primary-button" onClick={abrirCriar}>
+      <Button
+        variant="primary"
+        className="create-character-btn"
+        onClick={abrirCriar}
+      >
         + Criar Personagem
-      </button>
+      </Button>
 
       {personagens.length === 0 ? (
-        <p>Nenhum personagem criado</p>
+        <EmptyState
+          icon={FiUser}
+          title="Nenhum personagem ainda"
+          description="Crie o primeiro personagem da sua história"
+          hint="Personagens bem construídos dão vida à narrativa"
+          actionText="Criar Personagem"
+          onAction={abrirCriar}
+        />
       ) : (
         <div className="characters-grid">
 
@@ -110,7 +121,7 @@ export default function Characters({ projeto }) {
                   <div className="avatar" />
 
                   <div>
-                    <h4>{p.nome}</h4>
+                    <h4>{p.nome || "Sem nome"}</h4>
                     <span className="tag">
                       {p.papel || "Sem papel"}
                     </span>
@@ -121,7 +132,6 @@ export default function Characters({ projeto }) {
                   {p.descricao || "Sem descrição"}
                 </p>
 
-                {/* ✅ CORES REAIS */}
                 <div className="character-bars">
                   {(p.cores || []).slice(0, 3).map((cor, i) => (
                     <div key={i} style={{ background: cor }} />
@@ -131,6 +141,7 @@ export default function Characters({ projeto }) {
               </div>
 
               <div className="card-actions">
+
                 <button
                   className="edit"
                   onClick={(e) => {
@@ -138,18 +149,19 @@ export default function Characters({ projeto }) {
                     abrirEditar(p)
                   }}
                 >
-                  ✏️
+                  <FiEdit2 className="icon-edit" />
                 </button>
 
                 <button
                   className="delete"
                   onClick={(e) => {
                     e.stopPropagation()
-                    confirmarDeletar(p)
+                    setConfirmDelete(p)
                   }}
                 >
-                  🗑️
+                  <FiTrash2 className="icon-delete" />
                 </button>
+
               </div>
 
             </div>
@@ -158,11 +170,22 @@ export default function Characters({ projeto }) {
         </div>
       )}
 
-      {/* MODAL */}
+      {/* MODAL CRIAR / EDITAR */}
       {mostrarModal && (
-        <div className="modal">
+        <BaseModal onClose={() => setMostrarModal(false)}>
 
-          <h3>{editando ? "Editar Personagem" : "Novo Personagem"}</h3>
+          <div className="modal-header">
+            <h3 className="modal-title">
+              {editando ? "Editar Personagem" : "Novo Personagem"}
+            </h3>
+
+            <button
+              className="modal-close"
+              onClick={() => setMostrarModal(false)}
+            >
+              ✕
+            </button>
+          </div>
 
           <input
             placeholder="Nome"
@@ -182,43 +205,83 @@ export default function Characters({ projeto }) {
             onChange={(e) => setPapel(e.target.value)}
           />
 
-          {/* 🎨 CORES */}
           <h4>Paleta de cores</h4>
 
-          <input
-            type="color"
-            value={novaCor}
-            onChange={(e) => setNovaCor(e.target.value)}
-          />
+          <div className="color-controls">
 
-          <button onClick={adicionarCor}>
-            Adicionar cor
-          </button>
+            <label className="color-add">
+              +
+              <input
+                type="color"
+                value={novaCor}
+                onChange={(e) => setNovaCor(e.target.value)}
+              />
+            </label>
+
+            <div
+              className="color-preview"
+              style={{ background: novaCor }}
+            />
+
+            <Button variant="secondary" onClick={adicionarCor}>
+              Adicionar
+            </Button>
+
+          </div>
 
           <div className="color-palette">
             {cores.map((cor, i) => (
-              <div
-                key={i}
-                className="color-box"
-                style={{ background: cor }}
-                onClick={() => removerCor(i)}
-              />
+              <div className="tag-item" key={i}>
+                <div
+                  className="color-box"
+                  style={{ background: cor }}
+                />
+                <button
+                  className="remove-btn"
+                  onClick={() => removerCor(i)}
+                >
+                  ✕
+                </button>
+              </div>
             ))}
           </div>
 
-          <button onClick={salvar}>Salvar</button>
-          <button onClick={() => setMostrarModal(false)}>Cancelar</button>
+          <div className="modal-actions">
+            <Button variant="secondary" onClick={() => setMostrarModal(false)}>
+              Cancelar
+            </Button>
 
-        </div>
+            <Button variant="primary" onClick={salvar}>
+              Salvar
+            </Button>
+          </div>
+
+        </BaseModal>
       )}
 
+      {/* CONFIRM DELETE */}
       {confirmDelete && (
-        <div className="modal">
-          <p>Deseja deletar "{confirmDelete.nome}"?</p>
+        <BaseModal onClose={() => setConfirmDelete(null)}>
 
-          <button onClick={deletarConfirmado}>Sim</button>
-          <button onClick={() => setConfirmDelete(null)}>Cancelar</button>
-        </div>
+          <div className="modal-header">
+            <h3 className="modal-title">Deletar personagem</h3>
+          </div>
+
+          <p className="modal-text">
+            Deseja deletar <strong>{confirmDelete.nome}</strong>?
+          </p>
+
+          <div className="modal-actions">
+            <Button variant="danger" onClick={deletarConfirmado}>
+              Deletar
+            </Button>
+
+            <Button variant="secondary" onClick={() => setConfirmDelete(null)}>
+              Cancelar
+            </Button>
+          </div>
+
+        </BaseModal>
       )}
 
     </div>

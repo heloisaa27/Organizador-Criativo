@@ -9,3 +9,9 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
+
+.empty-icon {
+  font-size: 52px;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}

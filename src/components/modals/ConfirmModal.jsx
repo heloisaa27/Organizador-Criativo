@@ -18,7 +18,7 @@ export default function ConfirmModal({ onConfirm, onClose, projeto }) {
         <strong>"{projeto?.titulo}"</strong>?
       </p>
 
-      {/* ALERTA */}
+      {/* O ALERTA :o*/}
       <div className="modal-warning">
         ⚠️ Esta ação não pode ser desfeita. Todos os dados do projeto serão permanentemente removidos.
       </div>

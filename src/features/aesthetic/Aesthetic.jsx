@@ -37,9 +37,7 @@ export default function Aesthetic({ projeto }) {
     })
   }, [cores, musicas, humores, tags])
 
-  // =========================
   // CORES
-  // =========================
 
   function adicionarCor() {
     if (!novaCor) return
@@ -51,9 +49,7 @@ export default function Aesthetic({ projeto }) {
     setCores(cores.filter((_, i) => i !== index))
   }
 
-  // =========================
   // MÚSICAS
-  // =========================
 
   function adicionarMusica() {
     if (!novaMusica) return
@@ -65,9 +61,7 @@ export default function Aesthetic({ projeto }) {
     setMusicas(musicas.filter((_, i) => i !== index))
   }
 
-  // =========================
   // HUMOR
-  // =========================
 
   function toggleHumor(h) {
     if (humores.includes(h)) {
@@ -88,9 +82,7 @@ export default function Aesthetic({ projeto }) {
     setHumores(humores.filter((_, i) => i !== index))
   }
 
-  // =========================
   // TAGS
-  // =========================
 
   function adicionarTag() {
     if (!novaTag) return
@@ -109,10 +101,7 @@ export default function Aesthetic({ projeto }) {
 
         <h2>Estética</h2>
 
-        {/* ========================= */}
         {/* CORES */}
-        {/* ========================= */}
-
         <div>
           <h3>Paleta de cores</h3>
 
@@ -150,10 +139,7 @@ export default function Aesthetic({ projeto }) {
           </div>
         </div>
 
-
-        {/* ========================= */}
         {/* MÚSICAS */}
-        {/* ========================= */}
 
         <div>
           <h3>Músicas</h3>
@@ -176,9 +162,7 @@ export default function Aesthetic({ projeto }) {
           </div>
         </div>
 
-        {/* ========================= */}
         {/* HUMOR */}
-        {/* ========================= */}
 
         <div>
           <h3>Humor</h3>
@@ -213,9 +197,7 @@ export default function Aesthetic({ projeto }) {
           </div>
         </div>
 
-        {/* ========================= */}
         {/* TAGS */}
-        {/* ========================= */}
 
         <div>
           <h3>Palavras-chave</h3>
@@ -240,9 +222,7 @@ export default function Aesthetic({ projeto }) {
 
       </div>
 
-      {/* ========================= */}
       {/* SIDEBAR */}
-      {/* ========================= */}
 
       <div className="aesthetic-sidebar">
 

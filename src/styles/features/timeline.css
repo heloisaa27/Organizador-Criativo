@@ -1,0 +1,105 @@
+/* container geral */
+.timeline-container {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+/* linha vertical */
+.timeline-container::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 0;
+  bottom: 0;
+
+  width: 2px;
+  background: #e5e7eb;
+}
+
+/* item */
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  position: relative;
+}
+
+/* bolinha */
+.timeline-marker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+
+  background: #3b82f6;
+  margin-top: 10px;
+  z-index: 1;
+}
+
+/* card */
+.timeline-card {
+  flex: 1;
+
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  transition: 0.2s;
+}
+
+.timeline-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* header */
+.timeline-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeline-index {
+  font-size: 12px;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+/* ações */
+.timeline-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.timeline-actions button {
+  width: 32px;
+  height: 32px;
+
+  border-radius: 8px;
+  border: none;
+
+  background: #f3f4f6;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.timeline-actions button:hover {
+  background: #e5e7eb;
+}
+
+.timeline-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

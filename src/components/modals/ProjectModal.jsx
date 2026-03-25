@@ -31,10 +31,10 @@ export default function ProjectModal({ projeto, onClose, onSave }) {
   }
 
   function handleSubmit() {
-    if (!form.titulo.trim()) return // evita vazio
+    if (!form.titulo.trim()) return // é pra evita vazio
 
     onSave({
-      ...projeto, // mantém id se existir
+      ...projeto,
       ...form
     })
   }

@@ -1,0 +1,92 @@
+/* botão */
+.create-chapter-btn {
+  margin-top: 10px;
+  width: fit-content;
+}
+
+/* grid */
+.chapters-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+/* card */
+.chapter-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+
+  position: relative;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chapter-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.chapter-card h3 {
+  margin-bottom: 6px;
+}
+
+.chapter-preview {
+  font-size: 13px;
+  color: #666;
+}
+
+/* ações */
+.chapter-card .card-actions {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.chapter-card .card-actions button {
+  opacity: 0;
+  pointer-events: auto;
+  transition: 0.2s;
+}
+
+.chapter-card:hover .card-actions button {
+  opacity: 1;
+}
+
+.chapter-card .edit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.chapter-card .delete {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+/* editor */
+.chapter-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chapter-textarea {
+  width: 100%;
+  min-height: 400px;
+
+  padding: 16px;
+
+  border-radius: 16px;
+  border: 1px solid #ddd;
+
+  font-size: 14px;
+  line-height: 1.6;
+
+  resize: vertical;
+}

@@ -20,19 +20,19 @@ export default function Dashboard() {
   const [editando, setEditando] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
 
-  // 🔹 carregar projetos
+  // carregar projetos
   useEffect(() => {
     const saved = getProjetos() || []
     setProjetos(saved)
   }, [location])
 
-  // 🔹 salvar projeto
+  // salvar projeto
   function handleSave(projeto) {
 
     let atualizados
 
     if (editando) {
-      // ✏️ edição
+      // edição
       atualizados = projetos.map(p =>
         p.id === projeto.id
           ? {
@@ -43,7 +43,7 @@ export default function Dashboard() {
           : p
       )
     } else {
-      // ➕ criação
+      // criação
       atualizados = [
         ...projetos,
         {
@@ -74,13 +74,13 @@ export default function Dashboard() {
     setEditando(null)
   }
 
-  // 🔹 editar
+  // editar
   function editarProjeto(p) {
     setEditando(p)
     setMostrarModal(true)
   }
 
-  // 🔹 deletar
+  // deletar
   function deletarProjeto(id) {
     const atualizados = projetos.filter(p => p.id !== id)
 
@@ -99,7 +99,7 @@ export default function Dashboard() {
         variant="primary"
         className="create-project-btn"
         onClick={() => {
-          setEditando(null) // importante
+          setEditando(null) 
           setMostrarModal(true)
         }}
       >

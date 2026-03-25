@@ -1,5 +1,5 @@
 :root {
-  --bg: #fbfaf9;
+  --bg: #ff8faf;
   --card: #ffffff;
   --text: #222;
   --text-light: #666;
@@ -13,9 +13,7 @@ body::before {
   position: fixed;
   inset: 0;
 
-  background:
-    radial-gradient(circle at 80% 50%, rgba(255, 176, 19, 0.15), transparent 40%),
-    radial-gradient(circle at 30% 10%, rgba(250, 73, 33, 0.12), transparent 40%);
+  background: #ffc8ac63;
 
   z-index: -1;
 }

@@ -12,7 +12,7 @@ export default function ProjectCard({ projeto, onEdit, onDelete }) {
   return (
     <Card
       className="story-card"
-      onClick={() => navigate(`/project/${projeto.id}`)}
+      onClick={() => projeto?.id && navigate(`/project/${projeto.id}`)}
     >
 
       {/* TÍTULO */}
@@ -20,18 +20,18 @@ export default function ProjectCard({ projeto, onEdit, onDelete }) {
 
       {/* DESCRIÇÃO */}
       <p className="descricao">
-        <p>Descrição:</p>
+        <strong>Descrição:</strong>{" "}
         {projeto?.descricao || "Sem descrição"}
       </p>
 
-      {/* GÊNERO (sempre aparece) */}
+      {/* GÊNERO */}
       <p className="genero">
         Gênero: {projeto?.genero || "não definido"}
       </p>
 
       {/* CORES */}
       <div className="color-palette">
-        {projeto.estetica?.cores?.map((cor, i) => (
+        {(projeto.estetica?.cores || []).map((cor, i) => (
           <div
             key={i}
             className="color-box"
@@ -42,18 +42,19 @@ export default function ProjectCard({ projeto, onEdit, onDelete }) {
 
       {/* HUMOR */}
       <p className="humor">
-        {projeto.estetica?.humor || ""}
+        {(projeto.estetica?.humores || []).join(", ")}
       </p>
 
       {/* TAGS */}
       <div className="tags">
-        {projeto.estetica?.tags?.map((tag, i) => (
+        {(projeto.estetica?.tags || []).map((tag, i) => (
           <span key={i}>{tag}</span>
         ))}
       </div>
 
-      <div className="card-spacer"/>
-      {/* ===== PARTE FIXA ===== */}
+      <div className="card-spacer" />
+
+      {/* PARTE FIXA */}
       <div className="card-progress">
 
         <p className="progress-label">Processo por Abas:</p>

@@ -1,4 +1,4 @@
-/* ===== LAYOUT ===== */
+/*  LAYOUT  */
 
 .aesthetic-page {
   display: grid;
@@ -16,7 +16,7 @@
   gap: 20px;
 }
 
-/* ===== CARDS ===== */
+/*  CARDS  */
 
 .aesthetic-content > div {
   background: #fff;
@@ -25,7 +25,7 @@
   border: 1px solid #eee;
 }
 
-/* ===== TITULOS ===== */
+/*  TITULOS  */
 
 .aesthetic-content h3 {
   font-size: 15px;
@@ -33,7 +33,7 @@
   color: #333;
 }
 
-/* ===== BOTÕES ===== */
+/* BOTÕES */
 
 .aesthetic-content button {
   padding: 6px 12px;
@@ -47,7 +47,7 @@
   background: #ddd;
 }
 
-/* ===== CORES ===== */
+/*  CORES  */
 
 .color-palette {
   display: flex;
@@ -111,7 +111,7 @@
   cursor: pointer;
 }
 
-/* ===== CONTROLES DA COR ===== */
+/*  CONTROLES DA COR  */
 
 .color-controls {
   display: flex;
@@ -129,7 +129,7 @@
 }
 
 
-/* ===== TAGS ===== */
+/*  TAGS  */
 
 .tags {
   display: flex;
@@ -153,7 +153,7 @@
   border: 1px solid #ff9800;
 }
 
-/* ===== BOTÃO X ===== */
+/*  BOTÃO X  */
 
 .remove-btn {
   position: absolute;
@@ -185,7 +185,7 @@
   transform: scale(1.1);
 }
 
-/* ===== SIDEBAR ===== */
+/*  SIDEBAR  */
 
 .aesthetic-sidebar {
   position: sticky;

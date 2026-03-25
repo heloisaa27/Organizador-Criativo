@@ -19,7 +19,7 @@ export default function Project() {
   const [projeto, setProjeto] = useState(null)
   const [tab, setTab] = useState("aesthetic")
 
-  // 🔹 carregar projeto com segurança
+  // carregar projeto com segurança
   useEffect(() => {
     try {
       const projetos = JSON.parse(localStorage.getItem("projetos")) || []
@@ -60,12 +60,12 @@ export default function Project() {
     }
   }
 
-  // 🔹 loading
+  // carregando
   if (projeto === null) {
     return <p style={{ padding: "20px" }}>Carregando...</p>
   }
 
-  // 🔹 projeto não encontrado
+  // projeto não encontrado
   if (!projeto) {
     return (
       <div style={{ padding: "20px" }}>

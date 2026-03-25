@@ -1,6 +1,11 @@
 import { useState } from "react"
 import { salvarCapitulos } from "../chapters/chaptersStore"
 
+import Button from "../../components/ui/Button"
+import EmptyState from "../../components/ui/EmptyState"
+
+import { FiClock, FiArrowUp, FiArrowDown } from "react-icons/fi"
+
 export default function Timeline({ projeto }) {
 
   const [capitulos, setCapitulos] = useState(projeto.capitulos || [])
@@ -9,9 +14,7 @@ export default function Timeline({ projeto }) {
     if (index === 0) return
 
     const novos = [...capitulos]
-    const temp = novos[index]
-    novos[index] = novos[index - 1]
-    novos[index - 1] = temp
+    ;[novos[index], novos[index - 1]] = [novos[index - 1], novos[index]]
 
     setCapitulos(novos)
     salvarCapitulos(projeto.id, novos)
@@ -21,9 +24,7 @@ export default function Timeline({ projeto }) {
     if (index === capitulos.length - 1) return
 
     const novos = [...capitulos]
-    const temp = novos[index]
-    novos[index] = novos[index + 1]
-    novos[index + 1] = temp
+    ;[novos[index], novos[index + 1]] = [novos[index + 1], novos[index]]
 
     setCapitulos(novos)
     salvarCapitulos(projeto.id, novos)
@@ -32,29 +33,58 @@ export default function Timeline({ projeto }) {
   return (
     <div>
 
-      <h2>Ordem dos Capítulos</h2>
+      <h2>Linha do Tempo</h2>
 
       {capitulos.length === 0 ? (
-        <p>Nenhum capítulo criado</p>
+        <EmptyState
+          icon={FiClock}
+          title="Nenhum capítulo na timeline"
+          description="Organize seus capítulos na ordem da história"
+          hint="A sequência correta melhora o fluxo narrativo"
+          actionText="Criar Capítulo"
+          onAction={() => {}}
+        />
       ) : (
-        <div>
+        <div className="timeline-container">
+
           {capitulos.map((c, index) => (
-            <div key={c.id}>
+            <div key={c.id} className="timeline-item">
 
-              <span>
-                {index + 1}. {c.titulo}
-              </span>
+              <div className="timeline-marker" />
 
-              <button onClick={() => moverCima(index)}>
-                ↑
-              </button>
+              <div className="timeline-card">
 
-              <button onClick={() => moverBaixo(index)}>
-                ↓
-              </button>
+                <div className="timeline-header">
+                  <span className="timeline-index">
+                    Capítulo {index + 1}
+                  </span>
+
+                  <h3>{c.titulo}</h3>
+                </div>
+
+                <div className="timeline-actions">
+
+                  <button
+                    onClick={() => moverCima(index)}
+                    disabled={index === 0}
+                  >
+                    <FiArrowUp />
+                  </button>
+
+                  <button
+                    onClick={() => moverBaixo(index)}
+                    disabled={index === capitulos.length - 1}
+                  >
+                    <FiArrowDown />
+                  </button>
+
+                </div>
+
+              </div>
 
             </div>
           ))}
+
         </div>
       )}
 
