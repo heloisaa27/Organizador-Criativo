@@ -1,5 +1,9 @@
 import BaseModal from "../../../components/modals/BaseModal"
 import Button from "../../../components/ui/Button"
+import Select from "../../../components/ui/Select"
+import Input from "../../../components/ui/Input"
+
+
 
 export default function RelationshipFormModal({
   personagens,
@@ -17,10 +21,21 @@ export default function RelationshipFormModal({
   return (
     <BaseModal onClose={onClose}>
 
-      <h3>Novo Relacionamento</h3>
+      <div className="modal-header">
+        <h3>Novo Relacionamento</h3>
 
-      <select value={p1} onChange={(e) => setP1(e.target.value)}>
-        <option value="">Personagem 1</option>
+        <Button variant="ghost" onClick={onClose}>
+          ✕
+        </Button>
+      </div>
+
+      <Select
+        label="Personagem 1"
+        value={p1}
+        onChange={(e) => setP1(e.target.value)}
+      >
+        <option value="">Selecione</option>
+
         {personagens.map(p => (
           <option
             key={p.id}
@@ -30,10 +45,17 @@ export default function RelationshipFormModal({
             {p.nome}
           </option>
         ))}
-      </select>
+      </Select>
 
-      <select value={p2} onChange={(e) => setP2(e.target.value)}>
-        <option value="">Personagem 2</option>
+
+
+      <Select
+        label="Personagem 2"
+        value={p2}
+        onChange={(e) => setP2(e.target.value)}
+      >
+        <option value="">Selecione</option>
+
         {personagens.map(p => (
           <option
             key={p.id}
@@ -43,33 +65,36 @@ export default function RelationshipFormModal({
             {p.nome}
           </option>
         ))}
-      </select>
+      </Select>
 
       <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
         Selecione um tipo existente:
       </p>
 
       <div className="tags-container">
-        {tags.map(tag => (
-          <div
-            key={tag.nome}
-            className={`tag ${tipo === tag.nome ? "active" : ""}`}
-            style={{ background: tag.cor }}
-            onClick={() => setTipo(tag.nome)}
-          >
-            {tag.nome}
-          </div>
-        ))}
+        {tags.length === 0 ? (
+          <p className="tags-empty">
+            Nenhum tipo existente ainda.
+          </p>
+        ) : (
+          tags.map(tag => (
+            <div
+              key={tag.nome}
+              className={`tag ${tipo === tag.nome ? "active" : ""}`}
+              style={{ background: tag.cor }}
+              onClick={() => setTipo(tag.nome)}
+            >
+              {tag.nome}
+            </div>
+          ))
+        )}
       </div>
 
-      <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
-        Ou crie um novo tipo:
-      </p>
-
-      <input
-        placeholder="Novo tipo..."
+      <Input
+        label="Ou crie um novo tipo:"
         value={tipo}
         onChange={(e) => setTipo(e.target.value)}
+        placeholder="Ex: amizade, rivalidade..."
       />
 
       <Button onClick={onCreate}>

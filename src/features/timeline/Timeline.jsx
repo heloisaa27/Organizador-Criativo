@@ -12,7 +12,7 @@ import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } 
 import { CSS } from "@dnd-kit/utilities"
 
 
-export default function Timeline({ projeto, setProjeto }) {
+export default function Timeline({ projeto, setProjeto, setTab }) {
 
   const [capitulos, setCapitulos] = useState(projeto.capitulos || [])
 
@@ -137,7 +137,7 @@ export default function Timeline({ projeto, setProjeto }) {
           description="Organize seus capítulos na ordem da história"
           hint="A sequência correta melhora o fluxo narrativo"
           actionText="Criar Capítulo"
-          onAction={() => { }}
+           onAction={() => setTab("chapters")}
         />
       ) : (
         <DndContext

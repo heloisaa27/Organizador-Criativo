@@ -63,6 +63,7 @@ export default function Project() {
           <Timeline
             projeto={projeto}
             setProjeto={setProjeto}
+            setTab={setTab}
           />
         )
       case "relationships":
@@ -70,6 +71,7 @@ export default function Project() {
           <Relationships
             projeto={projeto}
             setProjeto={setProjeto}
+            setTab={setTab}
           />
         )
       default:

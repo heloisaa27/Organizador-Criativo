@@ -1,5 +1,8 @@
 import BaseModal from "../../../components/modals/BaseModal"
 import Button from "../../../components/ui/Button"
+import Input from "../../../components/ui/Input"
+import Textarea from "../../../components/ui/Textarea"
+import Form from "../../../components/ui/Form"
 
 export default function CharacterFormModal({
   onClose,
@@ -22,6 +25,10 @@ export default function CharacterFormModal({
     setCores(cores.filter((_, i) => i !== index))
   }
 
+  function handleSubmit() {
+    onSave()
+  }
+
   return (
     <BaseModal onClose={onClose}>
 
@@ -30,79 +37,95 @@ export default function CharacterFormModal({
           {editando ? "Editar Personagem" : "Novo Personagem"}
         </h3>
 
-        <button className="modal-close" onClick={onClose}>
+        <Button variant="ghost" onClick={onClose}>
           ✕
-        </button>
+        </Button>
       </div>
 
-      <input
-        placeholder="Nome"
-        value={nome}
-        onChange={(e) => setNome(e.target.value)}
-      />
+      <Form onSubmit={handleSubmit}>
 
-      <textarea
-        placeholder="Descrição"
-        value={descricao}
-        onChange={(e) => setDescricao(e.target.value)}
-      />
-
-      <input
-        placeholder="Papel"
-        value={papel}
-        onChange={(e) => setPapel(e.target.value)}
-      />
-
-      <h4>Paleta de cores</h4>
-
-      <div className="color-controls">
-
-        <label className="color-add">
-          +
-          <input
-            type="color"
-            value={novaCor}
-            onChange={(e) => setNovaCor(e.target.value)}
-          />
-        </label>
-
-        <div
-          className="color-preview"
-          style={{ background: novaCor }}
+        <Input
+          label="Nome"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          placeholder="Nome do personagem"
+          required
         />
 
-        <Button variant="secondary" onClick={adicionarCor}>
-          Adicionar
-        </Button>
+        <Textarea
+          label="Descrição"
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+          placeholder="Descrição do personagem"
+        />
 
-      </div>
+        <Input
+          label="Papel"
+          value={papel}
+          onChange={(e) => setPapel(e.target.value)}
+          placeholder="Ex: protagonista, antagonista..."
+        />
 
-      <div className="color-palette">
-        {cores.map((cor, i) => (
-          <div key={cor + i} className="tag-item">
-            <div
-              className="color-box"
-              style={{ background: cor }}
+        {/* CORES */}
+
+        <h4>Paleta de cores</h4>
+
+        <div className="color-controls">
+
+          <label className="color-add">
+            +
+            <input
+              type="color"
+              value={novaCor}
+              onChange={(e) => setNovaCor(e.target.value)}
             />
-            <button
-              className="remove-btn"
-              onClick={() => removerCor(i)}
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
+          </label>
 
-      <div className="modal-actions">
-        <Button variant="secondary" onClick={onClose}>
-          Cancelar
-        </Button>
+          <div
+            className="color-preview"
+            style={{ background: novaCor }}
+          />
 
-        <Button variant="primary" onClick={onSave}>
-          Salvar
-        </Button>
-      </div>
+          <Button type="button" variant="secondary" onClick={adicionarCor}>
+            Adicionar
+          </Button>
+
+        </div>
+
+        <div className="color-palette">
+          {cores.map((cor, i) => (
+            <div key={cor + i} className="tag-item">
+
+              <div
+                className="color-box"
+                style={{ background: cor }}
+              />
+
+              <button
+                type="button"
+                className="remove-btn"
+                onClick={() => removerCor(i)}
+              >
+                ✕
+              </button>
+
+            </div>
+          ))}
+        </div>
+
+        {/* AÇÕES */}
+
+        <div className="modal-actions">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+
+          <Button variant="primary" type="submit">
+            Salvar
+          </Button>
+        </div>
+
+      </Form>
 
     </BaseModal>
   )

@@ -43,6 +43,17 @@
   transform: translateY(-1px);
 }
 
+.btn-ghost {
+  background: transparent;
+  color: #777;
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  background: #f3f3f3;
+}
+
+
 
 /* CARD BASE */
 

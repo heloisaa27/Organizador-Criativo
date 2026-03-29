@@ -23,7 +23,7 @@ export default function ChapterFormModal({
           {editando ? "Editar Capítulo" : "Novo Capítulo"}
         </h3>
 
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="ghost" onClick={onClose}>
           ✕
         </Button>
       </div>
@@ -34,7 +34,7 @@ export default function ChapterFormModal({
           label="Título do capítulo"
           value={titulo}
           onChange={(e) => setTitulo(e.target.value)}
-          placeholder="Ex: O começo de tudo"
+          placeholder="Título do capítulo"
           required
         />
 

@@ -1,4 +1,5 @@
 import Button from "../../../components/ui/Button"
+import { FiArrowLeft } from "react-icons/fi"
 
 export default function ChapterEditor({
   capitulo,
@@ -7,23 +8,33 @@ export default function ChapterEditor({
 }) {
 
   return (
-    <div className="chapter-editor">
+    <div className="chapter-editor-page">
 
-      <Button
-        variant="secondary"
-        onClick={onBack}
-      >
-        ← Voltar
-      </Button>
+      {/* HEADER */}
+      <div className="editor-header">
 
-      <h2>{capitulo.titulo}</h2>
+        <Button variant="secondary" onClick={onBack} className="editor-back-btn">
+          <FiArrowLeft />
+          Voltar
+        </Button>
 
-      <textarea
-        className="chapter-textarea"
-        value={capitulo.texto || ""}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Escreva seu capítulo aqui..."
-      />
+        <h2 className="editor-title">
+          {capitulo.titulo}
+        </h2>
+
+      </div>
+
+      {/* ÁREA DE ESCRITA */}
+      <div className="editor-container">
+
+        <textarea
+          className="chapter-editor-textarea"
+          value={capitulo.texto || ""}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Comece a escrever seu capítulo..."
+        />
+
+      </div>
 
     </div>
   )

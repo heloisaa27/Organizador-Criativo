@@ -14,7 +14,7 @@ import RelationshipGraph from "./components/RelationshipGraph"
 
 import { FiHeart } from "react-icons/fi"
 
-export default function Relationships({ projeto, setProjeto }) {
+export default function Relationships({ projeto, setProjeto, setTab }) {
 
   const personagens = projeto.personagens || []
   const [relacoes, setRelacoes] = useState(projeto.relacoes || [])
@@ -147,6 +147,7 @@ export default function Relationships({ projeto, setProjeto }) {
           title="Nenhum personagem"
           description="Crie personagens primeiro"
           actionText={"Crie um Personagem"}
+          onAction={() => setTab("characters")}
         />
       ) : (
 
