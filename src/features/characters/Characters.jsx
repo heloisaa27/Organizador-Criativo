@@ -4,13 +4,14 @@ import { salvarOuEditarPersonagem, deletarPersonagem } from "./characterLogic"
 
 import Button from "../../components/ui/Button"
 import EmptyState from "../../components/ui/EmptyState"
+import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 
 import CharacterCard from "./components/CharacterCard"
 import CharacterFormModal from "./components/CharacterFormModal"
 
 
-import { FiUser } from "react-icons/fi"
+import { FiUser, FiUsers } from "react-icons/fi"
 
 export default function Characters({ projeto, setProjeto }) {
 
@@ -98,6 +99,22 @@ export default function Characters({ projeto, setProjeto }) {
     <div>
 
       <h2>Personagens</h2>
+
+      <SectionStatus
+        color="blue"
+        icon={FiUsers}
+        title={`Personagens criados: ${personagens.length}`}
+        subtitle={
+          personagens.length === 0
+          ? "Comece criando seu primeiro personagem"
+          : personagens.length < 3
+          ? "Seu elenco está começando a ganhar forma"
+          : personagens.length < 6
+          ? "Seu elenco já está bem desenvolvido"
+          : "Você tem um elenco rico e completo"
+        }
+        
+      />
 
       <Button
         variant="primary"

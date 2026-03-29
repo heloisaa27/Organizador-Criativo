@@ -4,13 +4,14 @@ import { salvarOuEditarCapitulo, deletarCapitulo, atualizarTexto } from "./chapt
 
 import Button from "../../components/ui/Button"
 import EmptyState from "../../components/ui/EmptyState"
+import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 
 import ChapterCard from "./components/ChapterCard"
 import ChapterEditor from "./components/ChapterEditor"
 import ChapterFormModal from "./components/ChapterFormModal"
 
-import { FiBookOpen } from "react-icons/fi"
+import { FiBookOpen, FiFileText } from "react-icons/fi"
 
 export default function Chapters({ projeto, setProjeto }) {
 
@@ -85,6 +86,21 @@ export default function Chapters({ projeto, setProjeto }) {
       <div>
 
         <h2>Capítulos</h2>
+
+        <SectionStatus
+          color="yellow"
+          icon={FiFileText}
+          title={`Capítulos criados: ${capitulos.length}`}
+          subtitle={
+            capitulos.length === 0
+              ? "Comece criando seu primeiro capítulo"
+              : capitulos.length < 3
+              ? "Sua estrutura narrativa está começando"
+              : capitulos.length < 6
+              ? "Sua história já está bem estruturada"
+              : "Estrutura narrativa bem desenvolvida"
+          }
+        />
 
         <Button
           variant="primary"

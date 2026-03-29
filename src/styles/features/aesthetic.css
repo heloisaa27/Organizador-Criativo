@@ -1,13 +1,19 @@
 /*  LAYOUT  */
 
-.aesthetic-page {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 32px;
+.aesthetic-main {
+  display: grid;  
+  grid-template-columns: 3fr 1fr;
+  gap: 16px;
+  max-width: 2100px;
+}
 
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
+.aesthetic-header { 
+  gap: 4px;
+  grid-column: 1 / -1;
+}
+
+.aesthetic-header .section-status {
+  margin: 0 0 12px;
 }
 
 .aesthetic-content {
@@ -18,7 +24,7 @@
 
 /*  CARDS  */
 
-.aesthetic-content > div {
+.aesthetic-content {
   background: #fff;
   border-radius: 16px;
   padding: 20px;
@@ -27,11 +33,6 @@
 
 /*  TITULOS  */
 
-.aesthetic-content h3 {
-  font-size: 15px;
-  margin-bottom: 10px;
-  color: #333;
-}
 
 /* BOTÕES */
 
@@ -46,6 +47,7 @@
 .aesthetic-content button:hover {
   background: #ddd;
 }
+
 
 /*  CORES  */
 
@@ -136,6 +138,7 @@
   gap: 8px;
   flex-wrap: wrap;
   margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .tag-item {
@@ -204,12 +207,20 @@
 .preview-colors {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
 }
 
 .preview-colors div {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+
+.aesthetic-sidebar .tags span {
+  padding: 6px 10px;
   border-radius: 10px;
+  font-size: 13px;
 }
 
 .music-list {
@@ -309,4 +320,3 @@
   transform: translateY(-50%);
   color: #aaa;
 }
-

@@ -5,6 +5,7 @@ import { criarRelacao, removerRelacao } from "./relationshipsLogic"
 
 import Button from "../../components/ui/Button"
 import EmptyState from "../../components/ui/EmptyState"
+import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 
 import RelationshipFormModal from "./components/RelationshipFormModal"
@@ -12,7 +13,7 @@ import RelationshipLegend from "./components/RelationshipLegend"
 import RelationshipDetailsModal from "./components/RelationshipDetailsModal"
 import RelationshipGraph from "./components/RelationshipGraph"
 
-import { FiHeart } from "react-icons/fi"
+import { FiHeart, FiShare2 } from "react-icons/fi"
 
 export default function Relationships({ projeto, setProjeto, setTab }) {
 
@@ -130,6 +131,21 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     <div>
 
       <h2>Relacionamentos</h2>
+
+      <SectionStatus
+        color="pink"
+        icon={FiShare2}
+        title={`Relacionamentos mapeados: ${relacoes.length}`}
+        subtitle={
+          relacoes.length === 0
+            ? "Conecte personagens para dar profundidade à narrativa"
+            : relacoes.length < 3
+            ? "As relações estão começando a se formar"
+            : relacoes.length < 6
+            ? "As conexões já estão bem definidas"
+            : "Rede de relacionamentos bem desenvolvida"
+        }
+      />
 
       <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
         <Button onClick={() => setMostrarModal(true)}>

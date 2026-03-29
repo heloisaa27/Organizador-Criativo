@@ -13,6 +13,7 @@ import './styles/components/form.css'
 import './styles/components/tags.css'
 import './styles/components/tabs.css'
 import './styles/components/header.css'
+import './styles/components/section-status.css'
 
 import './styles/features/aesthetic.css'
 import './styles/features/characters.css'

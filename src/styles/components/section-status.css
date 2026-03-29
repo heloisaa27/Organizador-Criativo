@@ -1,0 +1,126 @@
+.section-status {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+
+  padding: 18px 20px;
+  border-radius: 20px;
+  border: 2px solid transparent;
+
+  margin: 18px 0 28px;
+}
+
+.section-status__icon {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  flex-shrink: 0;
+
+  font-size: 18px;
+}
+
+.section-status__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-status__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-status__top strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.section-status__subtitle {
+  font-size: 14px;
+  margin: 0;
+}
+
+.section-status__updated {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.section-status__progress-value {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+/* VERDE - estética */
+.section-status--green {
+  background: #e7f6ea;
+  border-color: #22c55e;
+  color: #137a35;
+}
+.section-status--green .section-status__icon {
+  color: #16a34a;
+}
+.section-status--green .progress-fill {
+  background: #16a34a;
+}
+
+/* AZUL - personagens */
+.section-status--blue {
+  background: #eaf2ff;
+  border-color: #3b82f6;
+  color: #1d4ed8;
+}
+.section-status--blue .section-status__icon {
+  color: #2563eb;
+}
+
+/* LARANJA - timeline */
+.section-status--orange {
+  background: #fff1e7;
+  border-color: #f97316;
+  color: #c2410c;
+}
+.section-status--orange .section-status__icon {
+  color: #f97316;
+}
+
+/* ROSA - relacionamentos */
+.section-status--pink {
+  background: #ffeaf4;
+  border-color: #ec4899;
+  color: #be185d;
+}
+.section-status--pink .section-status__icon {
+  color: #ec4899;
+}
+
+/* AMARELO - capítulos, se quiser depois */
+.section-status--yellow {
+  background: #fff8df;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+.section-status--yellow .section-status__icon {
+  color: #f59e0b;
+}

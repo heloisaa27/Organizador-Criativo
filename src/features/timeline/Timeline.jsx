@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { salvarCapitulos } from "../chapters/chaptersStore"
 import EmptyState from "../../components/ui/EmptyState"
+import SectionStatus from "../../components/ui/SectionStatus"
 
-import { FiClock } from "react-icons/fi"
+import { FiClock, FiCalendar } from "react-icons/fi"
 import { useEffect } from "react"
 
 import SortableItem from "./components/SortableItem"
@@ -129,6 +130,21 @@ export default function Timeline({ projeto, setProjeto, setTab }) {
     <div>
 
       <h2>Linha do Tempo</h2>
+
+      <SectionStatus
+        color="orange"
+        icon={FiCalendar}
+        title={`Eventos na linha do tempo: ${capitulos.length}`}
+        subtitle={
+          capitulos.length === 0
+            ? "Adicione capítulos para estruturar a linha do tempo"
+            : capitulos.length < 3
+            ? "A sequência da história está começando a se formar"
+            : capitulos.length < 6
+            ? "Sua linha do tempo já está consistente"
+            : "Linha do tempo bem organizada"
+        }
+      />
 
       {capitulos.length === 0 ? (
         <EmptyState

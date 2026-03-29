@@ -37,7 +37,7 @@ export default function ColorSection({
                     className="color-preview"
                     style={{ background: novaCor }}
                 />
-
+                
                 <button onClick={onAdd}>Adicionar</button>
 
             </div>

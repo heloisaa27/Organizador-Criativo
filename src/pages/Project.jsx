@@ -13,106 +13,111 @@ import Relationships from "../features/relationships/Relationships"
 
 export default function Project() {
 
-  const navigate = useNavigate()
-  const { id } = useParams()
+    const navigate = useNavigate()
+    const { id } = useParams()
 
-  const [projeto, setProjeto] = useState(null)
-  const [tab, setTab] = useState("aesthetic")
+    const [projeto, setProjeto] = useState(null)
+    const [tab, setTab] = useState("aesthetic")
 
-  // carregar projeto com segurança
-  useEffect(() => {
-    try {
-      const projetos = JSON.parse(localStorage.getItem("projetos")) || []
-      const encontrado = projetos.find(p => p.id === Number(id))
-      setProjeto(encontrado)
-    } catch {
-      setProjeto(null)
+    // carregar projeto com segurança
+    useEffect(() => {
+        try {
+            const projetos = JSON.parse(localStorage.getItem("projetos")) || []
+            const encontrado = projetos.find(p => p.id === Number(id))
+            setProjeto(encontrado)
+        } catch {
+            setProjeto(null)
+        }
+    }, [id])
+
+    const tabs = [
+        { id: "aesthetic", label: "Estética" },
+        { id: "characters", label: "Personagens" },
+        { id: "chapters", label: "Capítulos" },
+        { id: "timeline", label: "Linha do Tempo" },
+        { id: "relationships", label: "Relacionamentos" }
+    ]
+
+    function renderTab() {
+        switch (tab) {
+            case "aesthetic":
+                return (
+                    <Aesthetic
+                        projeto={projeto}
+                        setProjeto={setProjeto}
+                    />
+                )
+
+            case "characters":
+                return (
+                    <Characters
+                        projeto={projeto}
+                        setProjeto={setProjeto}
+                    />
+                )
+
+            case "chapters":
+                return (
+                    <Chapters
+                        projeto={projeto}
+                        setProjeto={setProjeto}
+                    />
+                )
+            case "timeline":
+                return (
+                    <Timeline
+                        projeto={projeto}
+                        setProjeto={setProjeto}
+                        setTab={setTab}
+                    />
+                )
+            case "relationships":
+                return (
+                    <Relationships
+                        projeto={projeto}
+                        setProjeto={setProjeto}
+                        setTab={setTab}
+                    />
+                )
+            default:
+                return null
+        }
     }
-  }, [id])
 
-  const tabs = [
-    { id: "aesthetic", label: "Estética" },
-    { id: "characters", label: "Personagens" },
-    { id: "chapters", label: "Capítulos" },
-    { id: "timeline", label: "Linha do Tempo" },
-    { id: "relationships", label: "Relacionamentos" }
-  ]
-
-  function renderTab() {
-    switch (tab) {
-      case "aesthetic":
-        return <Aesthetic projeto={projeto} />
-
-      case "characters":
-        return (
-          <Characters
-            projeto={projeto}
-            setProjeto={setProjeto}
-          />
-        )
-
-      case "chapters":
-        return (
-          <Chapters
-            projeto={projeto}
-            setProjeto={setProjeto}
-          />
-        )
-      case "timeline":
-        return (
-          <Timeline
-            projeto={projeto}
-            setProjeto={setProjeto}
-            setTab={setTab}
-          />
-        )
-      case "relationships":
-        return (
-          <Relationships
-            projeto={projeto}
-            setProjeto={setProjeto}
-            setTab={setTab}
-          />
-        )
-      default:
-        return null
+    // carregando
+    if (projeto === null) {
+        return <p style={{ padding: "20px" }}>Carregando...</p>
     }
-  }
 
-  // carregando
-  if (projeto === null) {
-    return <p style={{ padding: "20px" }}>Carregando...</p>
-  }
+    // projeto não encontrado
+    if (!projeto) {
+        return (
+            <div style={{ padding: "20px" }}>
+                <h2>Projeto não encontrado</h2>
+                <button onClick={() => navigate("/")}>
+                    Voltar
+                </button>
+            </div>
+        )
+    }
 
-  // projeto não encontrado
-  if (!projeto) {
     return (
-      <div style={{ padding: "20px" }}>
-        <h2>Projeto não encontrado</h2>
-        <button onClick={() => navigate("/")}>
-          Voltar
-        </button>
-      </div>
+        <MainLayout>
+
+            <Header
+                titulo={projeto.titulo}
+                subtitulo="Gerencie sua história"
+                onBack={() => navigate("/")}
+            />
+
+            <Tabs
+                tabs={tabs}
+                active={tab}
+                onChange={setTab}
+            />
+
+            {renderTab()}
+
+        </MainLayout>
     )
-  }
-
-  return (
-    <MainLayout>
-
-      <Header
-        titulo={projeto.titulo}
-        subtitulo="Gerencie sua história"
-        onBack={() => navigate("/")}
-      />
-
-      <Tabs
-        tabs={tabs}
-        active={tab}
-        onChange={setTab}
-      />
-
-      {renderTab()}
-
-    </MainLayout>
-  )
 }
