@@ -1,0 +1,57 @@
+.toast {
+  position: fixed;
+  right: 24px;
+  top: 24px;
+  z-index: 9999;
+
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+
+  min-width: 260px;
+  max-width: 360px;
+
+
+  padding: 14px 18px;
+  border-radius: 18px;
+
+
+  background: #f8fafc;
+  color: #1e293b;
+
+
+  border: 1px solid #dbe4f0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+
+
+  animation: toast-in 0.25s ease;
+}
+
+
+.toast__icon {
+  width: 28px;
+  height: 28px;
+
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+
+  border-radius: 999px;
+  background: #e8f7ec;
+  color: #1f9d55;
+  flex-shrink: 0;
+
+
+  font-size: 14px;
+}
+
+
+.toast__message {
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 500;
+}

@@ -8,6 +8,7 @@ import EmptyState from "../../components/ui/EmptyState"
 import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 import TipBox from "../../components/ui/TipBox"
+import Toast from "../../components/ui/Toast"
 
 import CharacterCard from "./components/CharacterCard"
 import CharacterFormModal from "./components/CharacterFormModal"
@@ -78,6 +79,9 @@ export default function Characters({ projeto, setProjeto }) {
 
     setMostrarModal(false)
     setEditando(null)
+
+    showToast("Personagem criado com sucesso")
+
   }
 
   function deletarConfirmado() {
@@ -93,7 +97,21 @@ export default function Characters({ projeto, setProjeto }) {
     salvarPersonagens(projeto.id, atualizados)
 
     setConfirmDelete(null)
+
+    showToast("Personagem deletado com sucesso")
   }
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+  function showToast(message) {
+    setToast({
+      show: true,
+      message
+    })
+  }  
 
   return (
     <div>
@@ -176,6 +194,16 @@ export default function Characters({ projeto, setProjeto }) {
         />
       )}
 
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        onClose={() =>
+          setToast({
+            show: false,
+            message: ""
+          })
+        }
+      />
     </div>
   )
 }

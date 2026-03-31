@@ -8,7 +8,7 @@ import { calcularProgresso } from "../../utils/progresso"
 
 import TipBox from "../../components/ui/TipBox"
 import SectionStatus from "../../components/ui/SectionStatus"
-
+import Toast from "../../components/ui/Toast"
 import ColorSection from "./components/ColorSection"
 import MusicSection from "./components/MusicSection"
 import HumorSection from "./components/HumorSection"
@@ -57,43 +57,89 @@ export default function Aesthetic({ projeto, setProjeto }) {
     }
   }, [cores, musicas, humores, tags, projeto.id, setProjeto])
 
-  // CORES
   function adicionarCor() {
-    setCores(adicionarItem(cores, novaCor))
+    const novasCores = adicionarItem(cores, novaCor)
+    if (novasCores.length === cores.length) return
+    setCores(novasCores)
+    showToast("Cor adicionada com sucesso")
   }
+
 
   function removerCor(index) {
     setCores(removerItem(cores, index))
+    showToast("Cor removida com sucesso")
   }
 
   // HUMOR
+
   function toggleHumor(h) {
     setHumores(toggleItem(humores, h))
+    showToast("Humor adicionado com sucesso")
   }
 
   function adicionarHumorCustom() {
-    setHumores(adicionarItem(humores, novoHumor))
+    const novosHumores = adicionarItem(humores, novoHumor)
+    if (novosHumores.length === humores.length) return
+    setHumores(novosHumores)
     setNovoHumor("")
+    showToast("Humor adicionado com sucesso")
   }
 
   function removerHumor(index) {
     setHumores(removerItem(humores, index))
+    showToast("Humor removido com sucesso")
   }
 
   // TAGS
+
   function adicionarTag() {
-    setTags(adicionarItem(tags, novaTag))
+    const novasTags = adicionarItem(tags, novaTag)
+
+    if (novasTags.length === tags.length) return
+
+    setTags(novasTags)
     setNovaTag("")
+    showToast("Palavra-chave adicionada com sucesso")
   }
+
 
   function removerTag(index) {
     setTags(removerItem(tags, index))
   }
 
+
+  function adicionarMusica(musica) {
+    const novasMusicas = adicionarItem(musicas, musica)
+    setMusicas(novasMusicas)
+    showToast("Música adicionada com sucesso")
+  }
+
+
+  function removerMusica(index) {
+    const novasMusicas = removerItem(musicas, index)
+
+    if (novasMusicas.length === musicas.length) return
+
+    setMusicas(novasMusicas)
+    showToast("Música removida com sucesso")
+  }
+
   const progresso = calcularProgresso({
-    ...projeto,
-    estetica: { cores, musicas, humores, tags }
+  ...projeto,
+  estetica: { cores, musicas, humores, tags }
   })
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+  function showToast(message) {
+    setToast({
+      show: true,
+      message
+    })
+  }
 
   // TIP
   const tip = getTip("aesthetic", projeto)
@@ -138,11 +184,11 @@ export default function Aesthetic({ projeto, setProjeto }) {
             onRemove={removerCor}
           />
 
-          <MusicSection
-            musicas={musicas}
-            onAdd={(musica) => setMusicas(adicionarItem(musicas, musica))}
-            onRemove={(index) => setMusicas(removerItem(musicas, index))}
-          />
+            <MusicSection
+              musicas={musicas}
+              onAdd={adicionarMusica}
+              onRemove={removerMusica}
+            />
 
           <HumorSection
             opcoesHumor={opcoesHumor}
@@ -167,6 +213,17 @@ export default function Aesthetic({ projeto, setProjeto }) {
           musicas={musicas}
           tags={tags}
         />
+
+          <Toast
+            show={toast.show}
+            message={toast.message}
+            onClose={() =>
+              setToast({
+                show: false,
+                message: ""
+              })
+            }
+          />
 
       </div>
     </div>

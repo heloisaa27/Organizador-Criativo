@@ -9,7 +9,7 @@ import EmptyState from "../../components/ui/EmptyState"
 import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 import TipBox from "../../components/ui/TipBox"
-
+import Toast from "../../components/ui/Toast"
 
 import ChapterCard from "./components/ChapterCard"
 import ChapterEditor from "./components/ChapterEditor"
@@ -82,6 +82,8 @@ export default function Chapters({ projeto, setProjeto }) {
 
     setMostrarModal(false)
     setEditando(null)
+
+    showToast("Capítulo criado com sucesso")
   }
 
 
@@ -102,8 +104,22 @@ export default function Chapters({ projeto, setProjeto }) {
 
 
     setConfirmDelete(null)
+
+    showToast("Capítulo deletado com sucesso")
+    
   }
 
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+  function showToast(message) {
+    setToast({
+      show: true,
+      message
+    })
+  } 
 
   // LISTA
 
@@ -196,6 +212,16 @@ export default function Chapters({ projeto, setProjeto }) {
           />
         )}
 
+        <Toast
+          show={toast.show}
+          message={toast.message}
+          onClose={() =>
+            setToast({
+              show: false,
+              message: ""
+            })
+          }
+        />
 
       </div>
     )

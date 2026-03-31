@@ -8,6 +8,7 @@ import EmptyState from "../../components/ui/EmptyState"
 import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 import TipBox from "../../components/ui/TipBox"
+import Toast from "../../components/ui/Toast"
 
 import RelationshipFormModal from "./components/RelationshipFormModal"
 import RelationshipLegend from "./components/RelationshipLegend"
@@ -64,6 +65,8 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     setTipo("")
     setP1("")
     setP2("")
+
+    showToast("Relacionamento criado com sucesso")
   }
 
   function removerTipo(tipoNome) {
@@ -84,6 +87,8 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     })
 
     salvarRelacoes(projeto.id, relacoesAtualizadas, tagsAtualizadas)
+
+    showToast("Relacionamento deletado com sucesso")
   }
 
   function resetarRelacoes() {
@@ -96,6 +101,9 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     })
 
     salvarRelacoes(projeto.id, [], [])
+
+    showToast("Relacionamentos resetados com sucesso")
+    
   }
 
   const tamanho = 450
@@ -116,6 +124,19 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     r.p1 === personagemSelecionado?.id ||
     r.p2 === personagemSelecionado?.id
   )
+
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+  function showToast(message) {
+    setToast({
+      show: true,
+      message
+    })
+  }    
 
   return (
     <div>
@@ -255,6 +276,17 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
           onClose={() => setConfirmReset(false)}
         />
       )}
+
+        <Toast
+          show={toast.show}
+          message={toast.message}
+          onClose={() =>
+            setToast({
+              show: false,
+              message: ""
+            })
+          }
+        />
 
     </div>
   )
