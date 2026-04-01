@@ -6,16 +6,19 @@ import { getProjetos, saveProjetos } from "../services/projetosService"
 import ProjectCard from "../components/ui/ProjectCard"
 import Button from "../components/ui/Button"
 import EmptyState from "../components/ui/EmptyState"
+import Input from "../components/ui/Input"
 
 import ProjectModal from "../components/modals/ProjectModal"
 import ConfirmModal from "../components/modals/ConfirmModal"
 
+import { FiGrid } from "react-icons/fi"
+
 export default function Dashboard() {
 
-  const navigate = useNavigate()
   const location = useLocation()
 
   const [projetos, setProjetos] = useState([])
+  const [busca, setBusca] = useState("")
   const [mostrarModal, setMostrarModal] = useState(false)
   const [editando, setEditando] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -26,13 +29,17 @@ export default function Dashboard() {
     setProjetos(saved)
   }, [location])
 
+  // 🔍 FILTRO
+  const projetosFiltrados = projetos.filter(p =>
+    p.titulo.toLowerCase().includes(busca.toLowerCase())
+  )
+
   // salvar projeto
   function handleSave(projeto) {
 
     let atualizados
 
     if (editando) {
-      // edição
       atualizados = projetos.map(p =>
         p.id === projeto.id
           ? {
@@ -43,7 +50,6 @@ export default function Dashboard() {
           : p
       )
     } else {
-      // criação
       atualizados = [
         ...projetos,
         {
@@ -74,13 +80,11 @@ export default function Dashboard() {
     setEditando(null)
   }
 
-  // editar
   function editarProjeto(p) {
     setEditando(p)
     setMostrarModal(true)
   }
 
-  // deletar
   function deletarProjeto(id) {
     const atualizados = projetos.filter(p => p.id !== id)
 
@@ -108,17 +112,28 @@ export default function Dashboard() {
 
       <h2>Minhas Histórias</h2>
 
-      <div className="projects-grid">
+      {/* 🔍 BARRA DE BUSCA */}
+      {projetos.length > 0 && (
+        <Input
+          placeholder="Buscar projeto..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
+      )}
+
+
+      <div className={`projects-grid ${projetos.length === 0 ? "empty" : ""}`}>
 
         {projetos.length === 0 ? (
           <EmptyState
-            title="Nenhum projeto ainda"
-            description="Crie sua primeira história"
+            icon={FiGrid}
+            title="Nenhum projeto encontrado"
+            description="Tente outro nome ou crie um novo projeto"
             actionText="Criar Projeto"
             onAction={() => setMostrarModal(true)}
           />
         ) : (
-          projetos.map((p) => (
+          projetosFiltrados.map((p) => (
             <ProjectCard
               key={p.id}
               projeto={p}
@@ -126,11 +141,11 @@ export default function Dashboard() {
               onDelete={setConfirmDelete}
             />
           ))
-        )}
+        )
+        }
 
       </div>
 
-      {/* MODAL CRIAR / EDITAR */}
       {mostrarModal && (
         <ProjectModal
           projeto={editando}
@@ -142,7 +157,6 @@ export default function Dashboard() {
         />
       )}
 
-      {/* MODAL DELETE */}
       {confirmDelete && (
         <ConfirmModal
           title="Deletar projeto?"

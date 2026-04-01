@@ -77,10 +77,15 @@ export default function Characters({ projeto, setProjeto }) {
 
     salvarPersonagens(projeto.id, atualizados)
 
+    const mensagem = editando
+      ? "Personagem atualizado com sucesso"
+      : "Personagem criado com sucesso"
+
     setMostrarModal(false)
     setEditando(null)
 
-    showToast("Personagem criado com sucesso")
+    showToast(mensagem)
+
 
   }
 
@@ -111,7 +116,7 @@ export default function Characters({ projeto, setProjeto }) {
       show: true,
       message
     })
-  }  
+  }
 
   return (
     <div>
@@ -119,8 +124,8 @@ export default function Characters({ projeto, setProjeto }) {
       <h2>Personagens</h2>
 
       {/* TIP */}
-      <TipBox 
-        text={tip} 
+      <TipBox
+        text={tip}
         color="blue"
       />
 
@@ -132,10 +137,10 @@ export default function Characters({ projeto, setProjeto }) {
           personagens.length === 0
             ? "Comece criando seu primeiro personagem"
             : personagens.length < 4
-            ? "Seu elenco está começando a ganhar forma"
-            : personagens.length < 7
-            ? "Seu elenco já está ficando completo"
-            : "Você tem um elenco completo!"
+              ? "Seu elenco está começando a ganhar forma"
+              : personagens.length < 7
+                ? "Seu elenco já está ficando completo"
+                : "Você tem um elenco completo!"
         }
         lastEdited={projeto?.ultimaEdicaoPorAba?.characters}
       />
