@@ -10,13 +10,15 @@ import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 import TipBox from "../../components/ui/TipBox"
 import Toast from "../../components/ui/Toast"
+import Input from "../../components/ui/Input"
+
 
 import ChapterCard from "./components/ChapterCard"
 import ChapterEditor from "./components/ChapterEditor"
 import ChapterFormModal from "./components/ChapterFormModal"
 
 
-import { FiBookOpen, FiFileText } from "react-icons/fi"
+import { FiBookOpen, FiFileText, FiSearch } from "react-icons/fi"
 
 
 export default function Chapters({ projeto, setProjeto }) {
@@ -24,6 +26,9 @@ export default function Chapters({ projeto, setProjeto }) {
 
   const [capitulos, setCapitulos] = useState(projeto.capitulos || [])
   const [capituloAtivo, setCapituloAtivo] = useState(null)
+
+
+  const [busca, setBusca] = useState("") // ADICIONADO
 
 
   const [mostrarModal, setMostrarModal] = useState(false)
@@ -41,6 +46,19 @@ export default function Chapters({ projeto, setProjeto }) {
 
   // TIP
   const tip = getTip("chapters", projeto)
+
+
+  // PRIORIZAÇÃO
+  const capitulosOrdenados = busca
+    ? [...capitulos].sort((a, b) => {
+      const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
+      const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
+
+
+      if (aMatch === bMatch) return 0
+      return aMatch ? -1 : 1
+    })
+    : capitulos
 
 
   // CRIAR / EDITAR
@@ -83,7 +101,13 @@ export default function Chapters({ projeto, setProjeto }) {
     setMostrarModal(false)
     setEditando(null)
 
-    showToast("Capítulo criado com sucesso")
+
+    const mensagem = editando
+      ? "Capítulo atualizado com sucesso"
+      : "Capítulo criado com sucesso"
+
+
+    showToast(mensagem)
   }
 
 
@@ -105,21 +129,24 @@ export default function Chapters({ projeto, setProjeto }) {
 
     setConfirmDelete(null)
 
+
     showToast("Capítulo deletado com sucesso")
-    
   }
+
 
   const [toast, setToast] = useState({
     show: false,
     message: ""
   })
 
+
   function showToast(message) {
     setToast({
       show: true,
       message
     })
-  } 
+  }
+
 
   // LISTA
 
@@ -132,9 +159,8 @@ export default function Chapters({ projeto, setProjeto }) {
         <h2>Capítulos</h2>
 
 
-        {/* TIP */}
-        <TipBox 
-          text={tip} 
+        <TipBox
+          text={tip}
           color="yellow"
         />
 
@@ -147,10 +173,10 @@ export default function Chapters({ projeto, setProjeto }) {
             capitulos.length === 0
               ? "Comece criando seu primeiro capítulo"
               : capitulos.length < 5
-              ? "Sua estrutura narrativa está começando"
-              : capitulos.length < 10
-              ? "Sua história já está bem estruturada"
-              : "Estrutura narrativa bem desenvolvida"
+                ? "Sua estrutura narrativa está começando"
+                : capitulos.length < 10
+                  ? "Sua história já está bem estruturada"
+                  : "Estrutura narrativa bem desenvolvida"
           }
           lastEdited={projeto?.ultimaEdicaoPorAba?.chapters}
         />
@@ -163,6 +189,20 @@ export default function Chapters({ projeto, setProjeto }) {
         >
           + Criar Capítulo
         </Button>
+
+
+        {/* BUSCA */}
+        {capitulos.length > 0 && (
+          <div className="input-icon">
+            <FiSearch className="icon" />
+            <Input
+              placeholder="Buscar capítulo..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+            />
+
+          </div>
+        )}
 
 
         {capitulos.length === 0 ? (
@@ -178,17 +218,20 @@ export default function Chapters({ projeto, setProjeto }) {
           <div className="chapters-grid">
 
 
-            {capitulos.map((c, index) => (
-              <ChapterCard
-                key={c.id}
-                capitulo={c}
-                index={index}
-                onOpen={setCapituloAtivo}
-                onEdit={abrirEditar}
-                onDelete={setConfirmDelete}
-              />
-            ))}
+            {capitulosOrdenados.map((c) => {
+              const indexReal = capitulos.findIndex(cap => cap.id === c.id)
 
+              return (
+                <ChapterCard
+                  key={c.id}
+                  capitulo={c}
+                  index={indexReal}
+                  onOpen={setCapituloAtivo}
+                  onEdit={abrirEditar}
+                  onDelete={setConfirmDelete}
+                />
+              )
+            })}
 
           </div>
         )}
@@ -215,6 +258,7 @@ export default function Chapters({ projeto, setProjeto }) {
           />
         )}
 
+
         <Toast
           show={toast.show}
           message={toast.message}
@@ -225,6 +269,7 @@ export default function Chapters({ projeto, setProjeto }) {
             })
           }
         />
+
 
       </div>
     )

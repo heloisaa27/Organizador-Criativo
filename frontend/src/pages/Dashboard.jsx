@@ -1,21 +1,33 @@
 import { useState, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 
-import { getProjetos, saveProjetos } from "../services/projetosService"
+
+import {
+  getProjetos,
+  createProjeto,
+  updateProjeto,
+  deleteProjeto
+} from "../services/projetosService"
+
 
 import ProjectCard from "../components/ui/ProjectCard"
 import Button from "../components/ui/Button"
 import EmptyState from "../components/ui/EmptyState"
 import Input from "../components/ui/Input"
 
+
 import ProjectModal from "../components/modals/ProjectModal"
 import ConfirmModal from "../components/modals/ConfirmModal"
 
-import { FiGrid } from "react-icons/fi"
+
+import { FiGrid, FiSearch } from "react-icons/fi"
+
 
 export default function Dashboard() {
 
+
   const location = useLocation()
+
 
   const [projetos, setProjetos] = useState([])
   const [busca, setBusca] = useState("")
@@ -23,81 +35,96 @@ export default function Dashboard() {
   const [editando, setEditando] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
 
+
   // carregar projetos
   useEffect(() => {
-    const saved = getProjetos() || []
-    setProjetos(saved)
-  }, [location])
-
-  // 🔍 FILTRO
-  const projetosFiltrados = projetos.filter(p =>
-    p.titulo.toLowerCase().includes(busca.toLowerCase())
-  )
-
-  // salvar projeto
-  function handleSave(projeto) {
-
-    let atualizados
-
-    if (editando) {
-      atualizados = projetos.map(p =>
-        p.id === projeto.id
-          ? {
-            ...p,
-            ...projeto,
-            atualizadoEm: new Date().toISOString()
-          }
-          : p
-      )
-    } else {
-      atualizados = [
-        ...projetos,
-        {
-          ...projeto,
-          id: Date.now(),
-
-          capitulos: [],
-          personagens: [],
-          relacoes: [],
-
-          estetica: {
-            cores: [],
-            imagem: null,
-            musica: "",
-            humor: "",
-            tags: []
-          },
-
-          atualizadoEm: new Date().toISOString()
-        }
-      ]
+    async function carregar() {
+      const saved = await getProjetos()
+      setProjetos(saved || [])
     }
 
+
+    carregar()
+  }, [location])
+
+
+  // ordenação
+  const projetosOrdenados = [...projetos].sort((a, b) => {
+    const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
+    const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
+
+
+    if (aMatch !== bMatch) {
+      return aMatch ? -1 : 1
+    }
+
+
+    return new Date(b.atualizadoEm) - new Date(a.atualizadoEm)
+  })
+
+
+  // salvar projeto (AJUSTADO)
+  async function handleSave(projeto) {
+
+
+    if (editando) {
+      const atualizado = {
+        ...editando,
+        ...projeto,
+        atualizadoEm: new Date().toISOString()
+      }
+
+
+      await updateProjeto(atualizado)
+
+
+    } else {
+      // 🔥 REMOVIDO: personagens, capítulos, etc
+      const novoProjeto = {
+        ...projeto,
+        atualizadoEm: new Date().toISOString()
+      }
+
+
+      await createProjeto(novoProjeto)
+    }
+
+
+    // recarrega
+    const atualizados = await getProjetos()
     setProjetos(atualizados)
-    saveProjetos(atualizados)
+
 
     setMostrarModal(false)
     setEditando(null)
   }
+
 
   function editarProjeto(p) {
     setEditando(p)
     setMostrarModal(true)
   }
 
-  function deletarProjeto(id) {
-    const atualizados = projetos.filter(p => p.id !== id)
 
+  // DELETE
+  async function deletarProjeto(id) {
+    await deleteProjeto(id)
+
+
+    const atualizados = await getProjetos()
     setProjetos(atualizados)
-    saveProjetos(atualizados)
+
 
     setConfirmDelete(null)
   }
 
+
   return (
     <div className="dashboard">
 
+
       <h1>Organizador Criativo</h1>
+
 
       <Button
         variant="primary"
@@ -110,30 +137,36 @@ export default function Dashboard() {
         + Criar Projeto
       </Button>
 
+
       <h2>Minhas Histórias</h2>
 
-      {/* 🔍 BARRA DE BUSCA */}
+
+      {/* BARRA DE BUSCA */}
       {projetos.length > 0 && (
-        <Input
-          placeholder="Buscar projeto..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-        />
+        <div className="input-icon">
+          <FiSearch className="icon" />
+          <Input
+            placeholder="Buscar projeto..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
       )}
 
 
       <div className={`projects-grid ${projetos.length === 0 ? "empty" : ""}`}>
 
+
         {projetos.length === 0 ? (
           <EmptyState
             icon={FiGrid}
-            title="Nenhum projeto encontrado"
-            description="Tente outro nome ou crie um novo projeto"
+            title="Nenhum projeto ainda"
+            description="Crie sua primeira história"
             actionText="Criar Projeto"
             onAction={() => setMostrarModal(true)}
           />
         ) : (
-          projetosFiltrados.map((p) => (
+          projetosOrdenados.map((p) => (
             <ProjectCard
               key={p.id}
               projeto={p}
@@ -141,10 +174,11 @@ export default function Dashboard() {
               onDelete={setConfirmDelete}
             />
           ))
-        )
-        }
+        )}
+
 
       </div>
+
 
       {mostrarModal && (
         <ProjectModal
@@ -157,6 +191,7 @@ export default function Dashboard() {
         />
       )}
 
+
       {confirmDelete && (
         <ConfirmModal
           title="Deletar projeto?"
@@ -166,6 +201,7 @@ export default function Dashboard() {
           onClose={() => setConfirmDelete(null)}
         />
       )}
+
 
     </div>
   )

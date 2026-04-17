@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
+
 import MainLayout from "../components/layout/MainLayout"
 import Header from "../components/layout/Header"
 import Tabs from "../components/layout/Tabs"
+
 
 import Aesthetic from "../features/aesthetic/Aesthetic"
 import Characters from "../features/characters/Characters"
@@ -11,24 +13,37 @@ import Chapters from "../features/chapters/Chapters"
 import Timeline from "../features/timeline/Timeline"
 import Relationships from "../features/relationships/Relationships"
 
+
+import { getProjetos } from "../services/projetosService"
+
+
 export default function Project() {
+
 
     const navigate = useNavigate()
     const { id } = useParams()
 
+
     const [projeto, setProjeto] = useState(null)
     const [tab, setTab] = useState("aesthetic")
 
-    // carregar projeto com segurança
+
+    // carregar projeto pelo backend
     useEffect(() => {
-        try {
-            const projetos = JSON.parse(localStorage.getItem("projetos")) || []
-            const encontrado = projetos.find(p => p.id === Number(id))
-            setProjeto(encontrado)
-        } catch {
-            setProjeto(null)
+        async function carregar() {
+            try {
+                const projetos = await getProjetos()
+                const encontrado = projetos.find(p => p.id === Number(id))
+                setProjeto(encontrado || null)
+            } catch {
+                setProjeto(null)
+            }
         }
+
+
+        carregar()
     }, [id])
+
 
     const tabs = [
         { id: "aesthetic", label: "Estética" },
@@ -37,6 +52,7 @@ export default function Project() {
         { id: "timeline", label: "Linha do Tempo" },
         { id: "relationships", label: "Relacionamentos" }
     ]
+
 
     function renderTab() {
         switch (tab) {
@@ -48,6 +64,7 @@ export default function Project() {
                     />
                 )
 
+
             case "characters":
                 return (
                     <Characters
@@ -56,6 +73,7 @@ export default function Project() {
                     />
                 )
 
+
             case "chapters":
                 return (
                     <Chapters
@@ -63,6 +81,8 @@ export default function Project() {
                         setProjeto={setProjeto}
                     />
                 )
+
+
             case "timeline":
                 return (
                     <Timeline
@@ -71,6 +91,8 @@ export default function Project() {
                         setTab={setTab}
                     />
                 )
+
+
             case "relationships":
                 return (
                     <Relationships
@@ -79,15 +101,19 @@ export default function Project() {
                         setTab={setTab}
                     />
                 )
+
+
             default:
                 return null
         }
     }
 
+
     // carregando
     if (projeto === null) {
         return <p style={{ padding: "20px" }}>Carregando...</p>
     }
+
 
     // projeto não encontrado
     if (!projeto) {
@@ -101,8 +127,10 @@ export default function Project() {
         )
     }
 
+
     return (
         <MainLayout>
+
 
             <Header
                 titulo={projeto.titulo}
@@ -110,13 +138,16 @@ export default function Project() {
                 onBack={() => navigate("/")}
             />
 
+
             <Tabs
                 tabs={tabs}
                 active={tab}
                 onChange={setTab}
             />
 
+
             {renderTab()}
+
 
         </MainLayout>
     )

@@ -1,7 +1,14 @@
 import { useState, useEffect } from "react"
-import { salvarPersonagens } from "./characterStore"
-import { salvarOuEditarPersonagem, deletarPersonagem } from "./characterLogic"
+import {
+  getPersonagens,
+  createPersonagem,
+  updatePersonagem,
+  deletePersonagem
+} from "./characterService"
+
+
 import { getTip } from "../../utils/tips"
+
 
 import Button from "../../components/ui/Button"
 import EmptyState from "../../components/ui/EmptyState"
@@ -9,34 +16,64 @@ import SectionStatus from "../../components/ui/SectionStatus"
 import ConfirmModal from "../../components/modals/ConfirmModal"
 import TipBox from "../../components/ui/TipBox"
 import Toast from "../../components/ui/Toast"
+import Input from "../../components/ui/Input"
+
 
 import CharacterCard from "./components/CharacterCard"
 import CharacterFormModal from "./components/CharacterFormModal"
 
-import { FiUser, FiUsers } from "react-icons/fi"
 
-export default function Characters({ projeto, setProjeto }) {
+import { FiUser, FiUsers, FiSearch } from "react-icons/fi"
 
-  const [personagens, setPersonagens] = useState(projeto.personagens || [])
+
+export default function Characters({ projeto }) {
+
+
+  const [personagens, setPersonagens] = useState([])
+  const [busca, setBusca] = useState("")
+
 
   const [mostrarModal, setMostrarModal] = useState(false)
   const [editando, setEditando] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
 
+
   const [nome, setNome] = useState("")
   const [descricao, setDescricao] = useState("")
   const [papel, setPapel] = useState("")
 
+
   const [cores, setCores] = useState([])
   const [novaCor, setNovaCor] = useState("#000000")
 
-  // sincroniza com projeto
-  useEffect(() => {
-    setPersonagens(projeto.personagens || [])
-  }, [projeto.personagens])
 
-  // TIP
+  // CARREGAR DO BACKEND
+  useEffect(() => {
+    async function carregar() {
+      const data = await getPersonagens(projeto.id)
+      setPersonagens(data || [])
+    }
+
+
+    carregar()
+  }, [projeto.id])
+
+
+  // ordenação
+  const personagensOrdenados = busca
+    ? [...personagens].sort((a, b) => {
+      const aMatch = a.nome.toLowerCase().includes(busca.toLowerCase())
+      const bMatch = b.nome.toLowerCase().includes(busca.toLowerCase())
+
+
+      if (aMatch === bMatch) return 0
+      return aMatch ? -1 : 1
+    })
+    : personagens
+
+
   const tip = getTip("characters", projeto)
+
 
   function abrirCriar() {
     setNome("")
@@ -47,6 +84,7 @@ export default function Characters({ projeto, setProjeto }) {
     setMostrarModal(true)
   }
 
+
   function abrirEditar(p) {
     setNome(p.nome)
     setDescricao(p.descricao || "")
@@ -56,60 +94,66 @@ export default function Characters({ projeto, setProjeto }) {
     setMostrarModal(true)
   }
 
-  function salvar() {
+
+  // SALVAR
+  async function salvar() {
     if (!nome.trim()) return
 
-    const atualizados = salvarOuEditarPersonagem({
-      personagens,
-      editando,
-      nome,
-      descricao,
-      papel,
-      cores
-    })
 
+    if (editando) {
+      await updatePersonagem({
+        ...editando,
+        nome,
+        descricao,
+        papel,
+        cores
+      })
+    } else {
+      await createPersonagem(projeto.id, {
+        nome,
+        descricao,
+        papel,
+        cores
+      })
+    }
+
+
+    const atualizados = await getPersonagens(projeto.id)
     setPersonagens(atualizados)
 
-    setProjeto({
-      ...projeto,
-      personagens: atualizados
-    })
-
-    salvarPersonagens(projeto.id, atualizados)
-
-    const mensagem = editando
-      ? "Personagem atualizado com sucesso"
-      : "Personagem criado com sucesso"
 
     setMostrarModal(false)
     setEditando(null)
 
-    showToast(mensagem)
 
-
+    showToast(
+      editando
+        ? "Personagem atualizado com sucesso"
+        : "Personagem criado com sucesso"
+    )
   }
 
-  function deletarConfirmado() {
-    const atualizados = deletarPersonagem(personagens, confirmDelete.id)
+  // DELETE 
+  async function deletarConfirmado() {
+    await deletePersonagem(confirmDelete.id)
 
+
+    const atualizados = await getPersonagens(projeto.id)
     setPersonagens(atualizados)
 
-    setProjeto({
-      ...projeto,
-      personagens: atualizados
-    })
-
-    salvarPersonagens(projeto.id, atualizados)
 
     setConfirmDelete(null)
 
+
     showToast("Personagem deletado com sucesso")
   }
+
 
   const [toast, setToast] = useState({
     show: false,
     message: ""
   })
+
 
   function showToast(message) {
     setToast({
@@ -118,16 +162,16 @@ export default function Characters({ projeto, setProjeto }) {
     })
   }
 
+
   return (
     <div>
 
+
       <h2>Personagens</h2>
 
-      {/* TIP */}
-      <TipBox
-        text={tip}
-        color="blue"
-      />
+
+      <TipBox text={tip} color="blue" />
+
 
       <SectionStatus
         color="blue"
@@ -142,8 +186,8 @@ export default function Characters({ projeto, setProjeto }) {
                 ? "Seu elenco já está ficando completo"
                 : "Você tem um elenco completo!"
         }
-        lastEdited={projeto?.ultimaEdicaoPorAba?.characters}
       />
+
 
       <Button
         variant="primary"
@@ -152,6 +196,19 @@ export default function Characters({ projeto, setProjeto }) {
       >
         + Criar Personagem
       </Button>
+
+
+      {personagens.length > 0 && (
+        <div className="input-icon">
+          <FiSearch className="icon" />
+          <Input
+            placeholder="Buscar personagem..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+          />
+        </div>
+      )}
+
 
       {personagens.length === 0 ? (
         <EmptyState
@@ -164,8 +221,7 @@ export default function Characters({ projeto, setProjeto }) {
         />
       ) : (
         <div className="characters-grid">
-
-          {personagens.map((p) => (
+          {personagensOrdenados.map((p) => (
             <CharacterCard
               key={p.id}
               personagem={p}
@@ -173,11 +229,10 @@ export default function Characters({ projeto, setProjeto }) {
               onDelete={setConfirmDelete}
             />
           ))}
-
         </div>
       )}
 
-      {/* MODAL CRIAR / EDITAR */}
+
       {mostrarModal && (
         <CharacterFormModal
           onClose={() => setMostrarModal(false)}
@@ -191,7 +246,7 @@ export default function Characters({ projeto, setProjeto }) {
         />
       )}
 
-      {/* CONFIRM DELETE */}
+
       {confirmDelete && (
         <ConfirmModal
           title="Deletar personagem?"
@@ -201,6 +256,7 @@ export default function Characters({ projeto, setProjeto }) {
           onClose={() => setConfirmDelete(null)}
         />
       )}
+
 
       <Toast
         show={toast.show}
