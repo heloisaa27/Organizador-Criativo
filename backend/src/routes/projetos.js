@@ -85,7 +85,7 @@ export default function projetosRoutes(db) {
     // POST criar personagem no projeto
     router.post("/:id/personagens", async (req, res) => {
         const { id } = req.params
-        const { nome, descricao, papel, musica } = req.body
+        const { nome, descricao, papel } = req.body
 
 
         if (!nome) {
@@ -94,9 +94,16 @@ export default function projetosRoutes(db) {
 
 
         const result = await db.run(
-            `INSERT INTO personagens (projeto_id, nome, descricao, papel, musica)
-       VALUES (?, ?, ?, ?, ?)`,
-            [id, nome, descricao || "", papel || "", musica || ""]
+            `INSERT INTO personagens (projeto_id, nome, descricao, papel)
+     VALUES (?, ?, ?, ?)`,
+            [id, nome, descricao || "", papel || ""]
+        )
+
+
+        // atualiza última edição
+        await db.run(
+            "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
+            [new Date().toISOString(), id]
         )
 
 

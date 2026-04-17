@@ -25,8 +25,7 @@ export async function initDB() {
     projeto_id INTEGER,
     nome TEXT,
     descricao TEXT,
-    papel TEXT,
-    musica TEXT
+    papel TEXT
   )
 `)
 
