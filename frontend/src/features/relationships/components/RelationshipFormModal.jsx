@@ -6,7 +6,6 @@ import Input from "../../../components/ui/Input"
 
 export default function RelationshipFormModal({
   personagens,
-  tags,
   p1,
   p2,
   tipo,
@@ -35,7 +34,10 @@ export default function RelationshipFormModal({
       <Select
         label="Personagem 1"
         value={p1}
-        onChange={(e) => setP1(Number(e.target.value))}
+        onChange={(e) => {
+          const value = e.target.value
+          setP1(value ? Number(value) : "")
+        }}
       >
         <option value="">Selecione</option>
 
@@ -55,7 +57,10 @@ export default function RelationshipFormModal({
       <Select
         label="Personagem 2"
         value={p2}
-        onChange={(e) => setP2(Number(e.target.value))}
+        onChange={(e) => {
+          const value = e.target.value
+          setP2(value ? Number(value) : "")
+        }}
       >
         <option value="">Selecione</option>
 
@@ -72,33 +77,8 @@ export default function RelationshipFormModal({
       </Select>
 
 
-      <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
-        Selecione um tipo existente:
-      </p>
-
-
-      <div className="tags-container">
-        {tags.length === 0 ? (
-          <p className="tags-empty">
-            Nenhum tipo existente ainda.
-          </p>
-        ) : (
-          tags.map(tag => (
-            <div
-              key={tag.nome}
-              className={`tag ${tipo === tag.nome ? "active" : ""}`}
-              style={{ background: tag.cor }}
-              onClick={() => setTipo(tag.nome)}
-            >
-              {tag.nome}
-            </div>
-          ))
-        )}
-      </div>
-
-
       <Input
-        label="Ou crie um novo tipo:"
+        label="Tipo de relacionamento"
         value={tipo}
         onChange={(e) => setTipo(e.target.value)}
         placeholder="Ex: amizade, rivalidade..."

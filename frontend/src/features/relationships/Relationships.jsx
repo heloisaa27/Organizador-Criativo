@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react"
-import { salvarRelacoes } from "./relationshipsService"
-import { criarRelacao, removerRelacao } from "./relationshipsLogic"
-import { getTip } from "../../utils/tips"
+import {
+  getRelacoes,
+  createRelacao,
+  deleteRelacao,
+  updateCorRelacao
+} from "./relationshipsService"
 
+
+import { getTip } from "../../utils/tips"
 import { getPersonagens } from "../characters/characterService"
+
 
 import Button from "../../components/ui/Button"
 import EmptyState from "../../components/ui/EmptyState"
@@ -17,97 +23,176 @@ import RelationshipFormModal from "./components/RelationshipFormModal"
 import RelationshipLegend from "./components/RelationshipLegend"
 import RelationshipDetailsModal from "./components/RelationshipDetailsModal"
 import RelationshipGraph from "./components/RelationshipGraph"
+import RelationshipTypeModal from "./components/RelationshipTypeModal"
 
 
 import { FiHeart, FiShare2 } from "react-icons/fi"
 
 
-export default function Relationships({ projeto, setProjeto, setTab }) {
+export default function Relationships({ projeto, setTab }) {
+
 
   const [personagens, setPersonagens] = useState([])
+  const [relacoes, setRelacoes] = useState([])
 
-  const [relacoes, setRelacoes] = useState(projeto.relacoes || [])
 
   const [mostrarModal, setMostrarModal] = useState(false)
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null)
+  const [tipoSelecionado, setTipoSelecionado] = useState(null)
   const [confirmReset, setConfirmReset] = useState(false)
+
 
   const [p1, setP1] = useState("")
   const [p2, setP2] = useState("")
   const [tipo, setTipo] = useState("")
 
-  // CARREGAR PERSONAGENS
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+
+  function showToast(message) {
+    setToast({ show: true, message })
+  }
+
+
   useEffect(() => {
     async function carregar() {
-      const data = await getPersonagens(projeto.id)
-      setPersonagens(data || [])
+      const personagensData = await getPersonagens(projeto.id)
+      const relacoesData = await getRelacoes(projeto.id)
+
+
+      setPersonagens(personagensData || [])
+      setRelacoes(relacoesData || [])
     }
+
 
     carregar()
   }, [projeto.id])
 
-  // TAGS DERIVADAS
-  const tags = [...new Set(relacoes.map(r => r.tipo))].map(nome => ({
-    nome,
-    cor: "#ccc"
-  }))
 
   const tip = getTip("relationships", projeto)
 
-  function adicionarRelacao() {
+
+  const tags = Object.values(
+    relacoes.reduce((acc, r) => {
+      if (!acc[r.tipo]) {
+        acc[r.tipo] = {
+          nome: r.tipo,
+          cor: r.cor || "#cccccc"
+        }
+      }
+      return acc
+    }, {})
+  )
+
+
+  async function adicionarRelacao() {
     if (!p1 || !p2 || !tipo) return
+
 
     if (p1 === p2) {
       alert("Um personagem não pode se relacionar com ele mesmo")
       return
     }
 
-    const tipoNormalizado = tipo.trim().toLowerCase()
 
-    const resultado = criarRelacao({
+    // procura se já existe esse tipo e pega a cor
+    const tipoExistente = relacoes.find(r => r.tipo === tipo)
+
+
+    const cor = tipoExistente?.cor || "#cccccc"
+
+
+    await createRelacao(projeto.id, {
       p1,
       p2,
-      tipo: tipoNormalizado,
-      relacoes
+      tipo,
+      cor // agora envia a cor
     })
 
-    setRelacoes(resultado)
 
+    const atualizadas = await getRelacoes(projeto.id)
+    setRelacoes(atualizadas)
 
-    setProjeto({
-      ...projeto,
-      relacoes: resultado
-    })
-
-    salvarRelacoes(projeto.id, resultado)
 
     setMostrarModal(false)
     setTipo("")
     setP1("")
     setP2("")
 
+
     showToast("Relacionamento criado com sucesso")
   }
 
-  function resetarRelacoes() {
-    setRelacoes([])
 
-    setProjeto({
-      ...projeto,
-      relacoes: []
+  async function deletarRelacao(id) {
+    await deleteRelacao(id)
+    const atualizadas = await getRelacoes(projeto.id)
+    setRelacoes(atualizadas)
+  }
+
+
+  async function alterarCorPorTipo(tipo, novaCor) {
+    await fetch(`http://localhost:3000/relacoes/tipo/${tipo}/cor`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ cor: novaCor })
     })
 
-    salvarRelacoes(projeto.id, [])
 
-    showToast("Relacionamentos resetados com sucesso")
+    const atualizadas = await getRelacoes(projeto.id)
+    setRelacoes(atualizadas)
   }
+
+
+  async function renomearTipo(tipoAntigo, novoTipo) {
+    await fetch(`http://localhost:3000/relacoes/tipo/${tipoAntigo}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ novoTipo })
+    })
+
+
+    const atualizadas = await getRelacoes(projeto.id)
+    setRelacoes(atualizadas)
+
+    setTipoSelecionado(novoTipo)
+  }
+
+
+
+  async function deletarTipo(tipo) {
+    await fetch(`http://localhost:3000/relacoes/tipo/${tipo}`, {
+      method: "DELETE"
+    })
+
+
+    const atualizadas = await getRelacoes(projeto.id)
+    setRelacoes(atualizadas)
+  }
+
+
+  function resetarRelacoes() {
+    setRelacoes([])
+    showToast("Relacionamentos resetados (local)")
+  }
+
 
   const tamanho = 450
   const centro = tamanho / 2
   const raio = 170
 
+
   const posicoes = personagens.map((p, index) => {
     const angulo = (index / personagens.length) * 2 * Math.PI
+
 
     return {
       ...p,
@@ -116,17 +201,6 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     }
   })
 
-  const [toast, setToast] = useState({
-    show: false,
-    message: ""
-  })
-
-  function showToast(message) {
-    setToast({
-      show: true,
-      message
-    })
-  }
 
   return (
     <div>
@@ -165,32 +239,53 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
           actionText="Criar Personagens"
         />
       ) : (
-        <div className="relationships-map">
+        <div className="relationships-layout">
 
 
-          <RelationshipLegend tags={tags} />
-
-
-          <RelationshipGraph
-            relacoes={relacoes}
-            posicoes={posicoes}
+          <RelationshipLegend
             tags={tags}
+            onOpenDetails={setTipoSelecionado}
           />
 
 
-          {posicoes.map(p => (
-            <div
-              key={p.id}
-              className="relationship-node"
-              style={{ left: p.x, top: p.y }}
-              onClick={() => setPersonagemSelecionado(p)}
-            >
-              {p.nome}
-            </div>
-          ))}
+          <div className="relationships-map">
+
+
+            <RelationshipGraph
+              relacoes={relacoes}
+              posicoes={posicoes}
+            />
+
+
+            {posicoes.map(p => (
+              <div
+                key={p.id}
+                className="relationship-node"
+                style={{ left: p.x, top: p.y }}
+                onClick={() => setPersonagemSelecionado(p)}
+              >
+                {p.nome}
+              </div>
+            ))}
+
+
+          </div>
 
 
         </div>
+      )}
+
+
+      {tipoSelecionado && (
+        <RelationshipTypeModal
+          tipo={tipoSelecionado}
+          relacoes={relacoes}
+          personagens={personagens}
+          onClose={() => setTipoSelecionado(null)}
+          onChangeColor={alterarCorPorTipo}
+          onRenameTipo={renomearTipo}
+          onDeleteTipo={deletarTipo}
+        />
       )}
 
 
@@ -199,25 +294,8 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
           personagem={personagemSelecionado}
           personagens={personagens}
           relacoes={relacoes}
-          tags={tags}
           onClose={() => setPersonagemSelecionado(null)}
-
-
-          onDeleteRelacao={(id) => {
-            const atualizados = removerRelacao(relacoes, id)
-
-
-            setRelacoes(atualizados)
-
-
-            setProjeto({
-              ...projeto,
-              relacoes: atualizados
-            })
-
-
-            salvarRelacoes(projeto.id, atualizados)
-          }}
+          onDeleteRelacao={deletarRelacao}
         />
       )}
 
@@ -225,7 +303,6 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
       {mostrarModal && (
         <RelationshipFormModal
           personagens={personagens}
-          tags={tags}
           p1={p1}
           p2={p2}
           tipo={tipo}
@@ -255,10 +332,7 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
         show={toast.show}
         message={toast.message}
         onClose={() =>
-          setToast({
-            show: false,
-            message: ""
-          })
+          setToast({ show: false, message: "" })
         }
       />
 

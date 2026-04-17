@@ -1,4 +1,4 @@
-export default function RelationshipLegend({ tags }) {
+export default function RelationshipLegend({ tags, onOpenDetails }) {
 
 
   return (
@@ -11,7 +11,11 @@ export default function RelationshipLegend({ tags }) {
 
 
       {tags.map(tag => (
-        <div key={tag.nome} className="relationships-legend-item">
+        <div
+          key={tag.nome}
+          className="relationships-legend-item clickable"
+          onClick={() => onOpenDetails(tag.nome)}
+        >
 
 
           <div
@@ -27,6 +31,8 @@ export default function RelationshipLegend({ tags }) {
 
         </div>
       ))}
+
+
     </div>
   )
 }

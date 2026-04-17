@@ -41,16 +41,17 @@ export async function initDB() {
     )
   `)
 
+
     await db.exec(`
     CREATE TABLE IF NOT EXISTS relacoes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         projeto_id INTEGER,
-        personagem1_id INTEGER,
-        personagem2_id INTEGER,
-        tipo TEXT
+        p1 INTEGER,
+        p2 INTEGER,
+        tipo TEXT,
+        cor TEXT DEFAULT '#cccccc'
     )
-    `)
-
+`)
 
 
     return db

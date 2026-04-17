@@ -11,11 +11,8 @@ export function calcularProgresso(projeto) {
 
 
   const personagens = projeto.total_personagens || 0
-
-
-  // 🔧 ainda não migrados (mantém 0 por enquanto)
-  const capitulos = 0
-  const relacoes = 0
+  const capitulos = projeto.total_capitulos || 0
+  const relacoes = projeto.total_relacoes || 0
 
 
   return {

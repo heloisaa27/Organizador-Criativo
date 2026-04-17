@@ -1,27 +1,40 @@
+/* LAYOUT GERAL */
 
-/* CONTAINER */
+
+.relationships-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* MAPA (GRAFO) */
+
 
 .relationships-map {
   position: relative;
   width: 450px;
   height: 450px;
-  margin: 60px auto;
 }
 
-/* fundo circular suave */
+
+/* fundo circular */
 .relationships-map::before {
   content: "";
   position: absolute;
   inset: 0;
 
+
   border-radius: 50%;
+
 
   background: radial-gradient(circle, #ffffff 40%, #f9fafb 100%);
   border: 1px solid #eee;
 }
 
 
-/* SVG (linhas) */
+/* SVG linhas */
+
 
 .relationships-svg {
   position: absolute;
@@ -29,136 +42,160 @@
 }
 
 
-/* NÓ (personagem) */
+/* NÓ (PERSONAGEM) */
+
 
 .relationship-node {
   position: absolute;
 
+
   transform: translate(-50%, -50%);
 
+
   padding: 12px 16px;
+
 
   background: #fff;
   border-radius: 16px;
   border: 1px solid #eee;
 
+
   box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+
 
   font-size: 13px;
   font-weight: 500;
 
+
   cursor: pointer;
+
 
   transition: all 0.2s ease;
 }
+
 
 .relationship-node:hover {
   transform: translate(-50%, -50%) scale(1.08);
   box-shadow: 0 10px 24px rgba(0,0,0,0.12);
 }
 
-
 /* LEGENDA */
 
+
 .relationships-legend {
-  position: absolute;
-  top: -70px;
-  left: 50%;
-  transform: translateX(-50%);
+  width: 180px;
 
-  background: #fff;
 
-  padding: 12px 16px;
+  background: white;
+  padding: 14px;
 
-  border-radius: 16px;
-  border: 1px solid #eee;
 
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-
-  min-width: 200px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
+
 
 .relationships-legend-title {
   font-size: 13px;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
+
+
+/* item clicável */
+
+
+.relationships-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+
+  margin-top: 8px;
+
+
+  padding: 6px 8px;
+  border-radius: 8px;
+
+
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+
+.relationships-legend-item:hover {
+  background: #f3f3f3;
+}
+
+
+/* cor */
+
 
 .relationships-legend-color {
   width: 12px;
   height: 12px;
-
-  border-radius: 4px;
+  border-radius: 50%;
 }
+
+
+/* texto */
+
 
 .relationships-legend-text {
   font-size: 12px;
   color: #555;
 }
 
+/* MODAL RELAÇÕES */
 
-/* MODAL (lista de relações) */
 
 .relationship-item {
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #eee;
 
+
   margin-bottom: 10px;
+
 
   background: #fafafa;
 }
+
 
 .relationship-item strong {
   display: block;
   font-size: 14px;
 }
 
-.relationship-item p {
-  font-size: 12px;
-  color: #666;
-}
+
+/* ações dentro do modal */
+
 
 .relationship-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 6px;
+  align-items: center;
+  gap: 10px;
+
+
+  margin-top: 8px;
 }
 
+
+/* input de cor */
+
+
 .relationship-actions input[type="color"] {
+  width: 36px;
+  height: 28px;
+
+
   border: none;
   background: none;
   cursor: pointer;
 }
 
-.relationship-actions button {
-  border: none;
-  background: #fee2e2;
-  color: #b91c1c;
+/* CONTROLES DE COR */
 
-  padding: 4px 8px;
-  border-radius: 6px;
-
-  cursor: pointer;
-}
-
-.relationship-actions button:hover {
-  background: #fecaca;
-}
-
-.relationships-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  position: relative;
-  padding-right: 20px;
-}
-.relationships-legend-item:hover .remove-btn {
-  opacity: 1;
-}
-
-/* AÇÕES DENTRO DO CARD */
 
 .color-controls {
   display: flex;
@@ -167,7 +204,6 @@
   margin-top: 10px;
 }
 
-/* seletor de cor */
 
 .color-add-relationship {
   position: relative;
@@ -175,14 +211,24 @@
   align-items: center;
   gap: 6px;
 
+
   padding: 6px 10px;
+
 
   border: 1px dashed #ddd;
   border-radius: 10px;
 
+
   cursor: pointer;
   transition: 0.2s;
 }
+
+
+.color-add-relationship:hover {
+  border-color: #f2a93b;
+  background: rgba(242, 169, 59, 0.08);
+}
+
 
 .color-input {
   position: absolute;
@@ -192,12 +238,8 @@
 }
 
 
-.color-add:hover {
-  border-color: #f2a93b;
-  background: rgba(242, 169, 59, 0.08);
-}
-
 /* preview da cor */
+
 
 .color-preview-relationship {
   width: 18px;
@@ -206,51 +248,244 @@
   border: 1px solid #ddd;
 }
 
-/* botão de escolher cor */
+/* BOTÃO DELETE */
 
-.color-button {
-  position: relative;
-  font-size: 14px;
-  color: #999;
+
+/* ============================= */
+/* BOTÕES PADRÃO (EDIT / DELETE) */
+/* ============================= */
+
+
+.type-actions button,
+.relationship-actions .delete,
+.color-controls .delete {
+
+
+  width: 36px;
+  height: 36px;
+
+
+  border-radius: 10px;
+  border: none;
+
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.color-button input {
+
+
+
+/* EDIT (azul suave tipo card) */
+
+
+.type-actions .edit {
+  background: #eef4ff;
+  color: #3b82f6;
+}
+
+
+.type-actions .edit:hover {
+  background: #dbeafe;
+  transform: scale(1.05);
+}
+
+
+
+
+/* DELETE (vermelho suave tipo card) */
+
+
+.type-actions .delete,
+.relationship-actions .delete,
+.color-controls .delete {
+
+
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+
+.type-actions .delete:hover,
+.relationship-actions .delete:hover,
+.color-controls .delete:hover {
+
+
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
+
+
+
+/* ============================= */
+/* BOTÃO DE COR (melhorado) */
+/* ============================= */
+
+
+.type-color-picker {
+  position: relative;
+}
+
+
+.type-color-picker input {
   position: absolute;
   inset: 0;
   opacity: 0;
   cursor: pointer;
 }
 
-/* BOTÃO DELETE */
 
-.relationship-actions .delete,
-.color-controls .delete {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.type-color-preview {
+  width: 36px;
+  height: 36px;
 
-  width: 32px;
-  height: 32px;
 
-  border-radius: 8px;
-  border: none;
+  border-radius: 10px;
 
-  background: #fee2e2;
-  color: #b91c1c;
 
-  cursor: pointer;
-  transition: 0.2s;
+  border: 1px solid #e5e7eb;
+
+
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+
+
+  transition: transform 0.2s ease;
 }
 
-.color-controls .delete:hover {
-  background: #fecaca;
+
+.type-color-preview:hover {
   transform: scale(1.05);
 }
 
-/* ÍCONE */
+
+
+
+/* ============================= */
+/* HEADER MAIS EQUILIBRADO */
+/* ============================= */
+
+
+.type-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+
+  margin-bottom: 10px;
+}
+
+
+
+
+/* ============================= */
+/* INPUT MAIS BONITO */
+/* ============================= */
+
+
+.type-input {
+  font-size: 18px;
+  font-weight: 600;
+
+
+  border: none;
+  border-bottom: 2px solid #e5e7eb;
+
+
+  outline: none;
+
+
+  padding: 4px 2px;
+
+
+  background: transparent;
+}
+
+
+.type-input:focus {
+  border-color: #3b82f6;
+}
+
+
+/* ícone */
+
 
 .icon-delete {
   font-size: 16px;
+}
+
+/* MODAL TIPO */
+
+
+.type-modal {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.type-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.type-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+/* input elegante */
+
+
+.type-input {
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  outline: none;
+  padding: 4px;
+}
+
+
+/* COR GRANDE */
+
+
+.type-color-picker {
+  position: relative;
+}
+
+
+.type-color-picker input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+
+.type-color-preview {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+
+/* lista */
+
+
+.type-relations-list {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
