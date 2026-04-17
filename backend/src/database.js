@@ -19,15 +19,37 @@ export async function initDB() {
     )
   `)
 
+
     await db.exec(`
-  CREATE TABLE IF NOT EXISTS personagens (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    projeto_id INTEGER,
-    nome TEXT,
-    descricao TEXT,
-    papel TEXT
-  )
-`)
+    CREATE TABLE IF NOT EXISTS personagens (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      projeto_id INTEGER,
+      nome TEXT,
+      descricao TEXT,
+      papel TEXT
+    )
+  `)
+
+
+    await db.exec(`
+    CREATE TABLE IF NOT EXISTS capitulos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      projeto_id INTEGER,
+      titulo TEXT,
+      conteudo TEXT,
+      ordem INTEGER
+    )
+  `)
+
+    await db.exec(`
+    CREATE TABLE IF NOT EXISTS relacoes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        projeto_id INTEGER,
+        personagem1_id INTEGER,
+        personagem2_id INTEGER,
+        tipo TEXT
+    )
+    `)
 
 
 

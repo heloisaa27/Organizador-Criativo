@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react"
-import { salvarCapitulos } from "./chaptersStore"
-import { salvarOuEditarCapitulo, deletarCapitulo, atualizarTexto } from "./chapterLogic"
+
+
+import {
+  getCapitulos,
+  createCapitulo,
+  updateCapitulo,
+  deleteCapitulo
+} from "./chaptersService"
+
+
 import { getTip } from "../../utils/tips"
 
 
@@ -21,16 +29,14 @@ import ChapterFormModal from "./components/ChapterFormModal"
 import { FiBookOpen, FiFileText, FiSearch } from "react-icons/fi"
 
 
-export default function Chapters({ projeto, setProjeto }) {
+export default function Chapters({ projeto }) {
 
 
-  const [capitulos, setCapitulos] = useState(projeto.capitulos || [])
+  const [capitulos, setCapitulos] = useState([])
   const [capituloAtivo, setCapituloAtivo] = useState(null)
 
 
-  const [busca, setBusca] = useState("") // ADICIONADO
-
-
+  const [busca, setBusca] = useState("")
   const [mostrarModal, setMostrarModal] = useState(false)
   const [editando, setEditando] = useState(null)
   const [confirmDelete, setConfirmDelete] = useState(null)
@@ -39,29 +45,37 @@ export default function Chapters({ projeto, setProjeto }) {
   const [titulo, setTitulo] = useState("")
 
 
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+
   useEffect(() => {
-    setCapitulos(projeto.capitulos || [])
-  }, [projeto.capitulos])
+    async function carregar() {
+      const data = await getCapitulos(projeto.id)
+      setCapitulos(data || [])
+    }
+    carregar()
+  }, [projeto.id])
 
 
-  // TIP
   const tip = getTip("chapters", projeto)
 
 
-  // PRIORIZAÇÃO
   const capitulosOrdenados = busca
     ? [...capitulos].sort((a, b) => {
-      const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
-      const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
-
-
-      if (aMatch === bMatch) return 0
-      return aMatch ? -1 : 1
-    })
+        const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
+        const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
+        if (aMatch === bMatch) return 0
+        return aMatch ? -1 : 1
+      })
     : capitulos
 
 
-  // CRIAR / EDITAR
+  function showToast(message) {
+    setToast({ show: true, message })
+  }
 
 
   function abrirCriar() {
@@ -78,53 +92,42 @@ export default function Chapters({ projeto, setProjeto }) {
   }
 
 
-  function salvar() {
-    const atualizados = salvarOuEditarCapitulo({
-      capitulos,
-      editando,
-      titulo
-    })
+  async function salvar() {
+    if (!titulo.trim()) return
 
 
+    if (editando) {
+      await updateCapitulo({
+        ...editando,
+        titulo
+      })
+    } else {
+      await createCapitulo(projeto.id, { titulo })
+    }
+
+
+    const atualizados = await getCapitulos(projeto.id)
     setCapitulos(atualizados)
-
-
-    setProjeto({
-      ...projeto,
-      capitulos: atualizados
-    })
-
-
-    salvarCapitulos(projeto.id, atualizados)
 
 
     setMostrarModal(false)
     setEditando(null)
 
 
-    const mensagem = editando
-      ? "Capítulo atualizado com sucesso"
-      : "Capítulo criado com sucesso"
-
-
-    showToast(mensagem)
+    showToast(
+      editando
+        ? "Capítulo atualizado com sucesso"
+        : "Capítulo criado com sucesso"
+    )
   }
 
 
-  function deletarConfirmado() {
-    const atualizados = deletarCapitulo(capitulos, confirmDelete.id)
+  async function deletarConfirmado() {
+    await deleteCapitulo(confirmDelete.id)
 
 
+    const atualizados = await getCapitulos(projeto.id)
     setCapitulos(atualizados)
-
-
-    setProjeto({
-      ...projeto,
-      capitulos: atualizados
-    })
-
-
-    salvarCapitulos(projeto.id, atualizados)
 
 
     setConfirmDelete(null)
@@ -134,23 +137,7 @@ export default function Chapters({ projeto, setProjeto }) {
   }
 
 
-  const [toast, setToast] = useState({
-    show: false,
-    message: ""
-  })
-
-
-  function showToast(message) {
-    setToast({
-      show: true,
-      message
-    })
-  }
-
-
   // LISTA
-
-
   if (!capituloAtivo) {
     return (
       <div>
@@ -159,26 +146,13 @@ export default function Chapters({ projeto, setProjeto }) {
         <h2>Capítulos</h2>
 
 
-        <TipBox
-          text={tip}
-          color="yellow"
-        />
+        <TipBox text={tip} color="yellow" />
 
 
         <SectionStatus
           color="yellow"
           icon={FiFileText}
           title={`Você já deu vida a ${capitulos.length} capítulos da sua história`}
-          subtitle={
-            capitulos.length === 0
-              ? "Comece criando seu primeiro capítulo"
-              : capitulos.length < 5
-                ? "Sua estrutura narrativa está começando"
-                : capitulos.length < 10
-                  ? "Sua história já está bem estruturada"
-                  : "Estrutura narrativa bem desenvolvida"
-          }
-          lastEdited={projeto?.ultimaEdicaoPorAba?.chapters}
         />
 
 
@@ -191,16 +165,14 @@ export default function Chapters({ projeto, setProjeto }) {
         </Button>
 
 
-        {/* BUSCA */}
         {capitulos.length > 0 && (
           <div className="input-icon">
-            <FiSearch className="icon" />
+            <FiSearch className="icon"/>
             <Input
               placeholder="Buscar capítulo..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
             />
-
           </div>
         )}
 
@@ -209,8 +181,6 @@ export default function Chapters({ projeto, setProjeto }) {
           <EmptyState
             icon={FiBookOpen}
             title="Nenhum capítulo criado ainda"
-            description="Comece criando seu primeiro capítulo"
-            hint="Organize sua história em capítulos para facilitar a escrita"
             actionText="Criar Capítulo"
             onAction={abrirCriar}
           />
@@ -220,6 +190,7 @@ export default function Chapters({ projeto, setProjeto }) {
 
             {capitulosOrdenados.map((c) => {
               const indexReal = capitulos.findIndex(cap => cap.id === c.id)
+
 
               return (
                 <ChapterCard
@@ -232,6 +203,7 @@ export default function Chapters({ projeto, setProjeto }) {
                 />
               )
             })}
+
 
           </div>
         )}
@@ -252,7 +224,6 @@ export default function Chapters({ projeto, setProjeto }) {
           <ConfirmModal
             title="Deletar capítulo?"
             message={`Deseja deletar "${confirmDelete.titulo}"?`}
-            confirmText="Deletar"
             onConfirm={deletarConfirmado}
             onClose={() => setConfirmDelete(null)}
           />
@@ -262,12 +233,7 @@ export default function Chapters({ projeto, setProjeto }) {
         <Toast
           show={toast.show}
           message={toast.message}
-          onClose={() =>
-            setToast({
-              show: false,
-              message: ""
-            })
-          }
+          onClose={() => setToast({ show: false, message: "" })}
         />
 
 
@@ -277,30 +243,33 @@ export default function Chapters({ projeto, setProjeto }) {
 
 
   // EDITOR
-
-
   return (
     <ChapterEditor
       capitulo={capituloAtivo}
       onBack={() => setCapituloAtivo(null)}
-      onChange={(novoTexto) => {
+      onChange={async (novoTexto) => {
 
 
-        const atualizados = atualizarTexto(
-          capitulos,
-          capituloAtivo.id,
-          novoTexto
-        )
-
-
-        setCapitulos(atualizados)
-        salvarCapitulos(projeto.id, atualizados)
-
-
-        setCapituloAtivo({
+        await updateCapitulo({
           ...capituloAtivo,
-          texto: novoTexto
+          conteudo: novoTexto
         })
+
+
+        const atualizado = {
+          ...capituloAtivo,
+          conteudo: novoTexto
+        }
+
+
+        setCapituloAtivo(atualizado)
+
+
+        setCapitulos(prev =>
+          prev.map(c =>
+            c.id === atualizado.id ? atualizado : c
+          )
+        )
       }}
     />
   )

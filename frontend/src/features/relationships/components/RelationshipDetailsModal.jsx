@@ -33,7 +33,7 @@ export default function RelationshipDetailsModal({
             r.p1 === personagem.id ? r.p2 : r.p1
 
           const outro = personagens.find(p => p.id === outroId)
-          const tag = tags.find(t => t.nome === r.tipo)
+          const tag = tags.find(t => t.nome === r.tipo) || { cor: "#ccc" }
 
           return (
             <div key={r.id} className="relationship-item">

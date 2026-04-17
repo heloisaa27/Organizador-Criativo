@@ -7,24 +7,27 @@ export function salvarOuEditarCapitulo({ capitulos, editando, titulo }) {
     )
   }
 
+
   return [
     ...capitulos,
     {
       id: Date.now(),
       titulo,
-      texto: ""
+      conteudo: ""
     }
   ]
 }
+
 
 export function deletarCapitulo(capitulos, id) {
   return capitulos.filter(c => c.id !== id)
 }
 
+
 export function atualizarTexto(capitulos, id, novoTexto) {
   return capitulos.map(c =>
     c.id === id
-      ? { ...c, texto: novoTexto }
+      ? { ...c, conteudo: novoTexto }
       : c
   )
 }

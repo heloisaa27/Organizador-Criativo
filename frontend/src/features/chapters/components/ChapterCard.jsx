@@ -1,12 +1,11 @@
-import { FiEdit2, FiTrash2 } from "react-icons/fi"
+import { FiEdit2, FiTrash2, FiFileText } from "react-icons/fi"
 
-export default function ChapterCard({
-  capitulo,
-  index,
-  onOpen,
-  onEdit,
-  onDelete
-}) {
+
+export default function ChapterCard({ capitulo, index, onOpen, onEdit, onDelete }) {
+
+
+  const conteudo = capitulo.conteudo || ""
+
 
   return (
     <div
@@ -14,29 +13,36 @@ export default function ChapterCard({
       onClick={() => onOpen(capitulo)}
     >
 
+
       <div className="chapter-header">
         <span className="chapter-index">
           Capítulo {index + 1}
         </span>
 
+
         <h3>{capitulo.titulo || "Sem título"}</h3>
       </div>
 
+
       <p className="chapter-preview">
-        {capitulo.texto
-          ? capitulo.texto.length > 100
-            ? capitulo.texto.slice(0, 100) + "..."
-            : capitulo.texto
+        {conteudo
+          ? conteudo.length > 100
+            ? conteudo.slice(0, 100) + "..."
+            : conteudo
           : "Sem conteúdo ainda"}
       </p>
 
+
       <div className="chapter-footer">
-        <span>
-          📄 {capitulo.texto?.length || 0} caracteres
+        <span className="chapter-meta">
+          <FiFileText className="icon-doc" />
+          {conteudo.length} caracteres
         </span>
       </div>
 
+
       <div className="card-actions">
+
 
         <button
           className="edit"
@@ -45,8 +51,9 @@ export default function ChapterCard({
             onEdit(capitulo)
           }}
         >
-          <FiEdit2 className="icon-edit" />
+          <FiEdit2 className="icon-edit"/>
         </button>
+
 
         <button
           className="delete"
@@ -55,10 +62,12 @@ export default function ChapterCard({
             onDelete(capitulo)
           }}
         >
-          <FiTrash2 className="icon-delete" />
+          <FiTrash2 className="icon-delete"/>
         </button>
 
+
       </div>
+
 
     </div>
   )

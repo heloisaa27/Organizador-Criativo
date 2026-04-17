@@ -4,7 +4,6 @@ import Select from "../../../components/ui/Select"
 import Input from "../../../components/ui/Input"
 
 
-
 export default function RelationshipFormModal({
   personagens,
   tags,
@@ -18,58 +17,65 @@ export default function RelationshipFormModal({
   onCreate
 }) {
 
+
   return (
     <BaseModal onClose={onClose}>
 
+
       <div className="modal-header">
         <h3>Novo Relacionamento</h3>
+
 
         <Button variant="ghost" onClick={onClose}>
           ✕
         </Button>
       </div>
 
+
       <Select
         label="Personagem 1"
         value={p1}
-        onChange={(e) => setP1(e.target.value)}
+        onChange={(e) => setP1(Number(e.target.value))}
       >
         <option value="">Selecione</option>
+
 
         {personagens.map(p => (
           <option
             key={p.id}
             value={p.id}
-            disabled={Number(p2) === p.id}
+            disabled={p2 === p.id}
           >
             {p.nome}
           </option>
         ))}
       </Select>
-
 
 
       <Select
         label="Personagem 2"
         value={p2}
-        onChange={(e) => setP2(e.target.value)}
+        onChange={(e) => setP2(Number(e.target.value))}
       >
         <option value="">Selecione</option>
+
 
         {personagens.map(p => (
           <option
             key={p.id}
             value={p.id}
-            disabled={Number(p1) === p.id}
+            disabled={p1 === p.id}
           >
             {p.nome}
           </option>
         ))}
       </Select>
 
+
       <p style={{ fontSize: "12px", color: "#666", marginTop: "10px" }}>
         Selecione um tipo existente:
       </p>
+
 
       <div className="tags-container">
         {tags.length === 0 ? (
@@ -90,6 +96,7 @@ export default function RelationshipFormModal({
         )}
       </div>
 
+
       <Input
         label="Ou crie um novo tipo:"
         value={tipo}
@@ -97,9 +104,11 @@ export default function RelationshipFormModal({
         placeholder="Ex: amizade, rivalidade..."
       />
 
+
       <Button onClick={onCreate}>
         Criar
       </Button>
+
 
     </BaseModal>
   )

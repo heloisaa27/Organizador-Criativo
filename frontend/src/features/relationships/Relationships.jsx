@@ -1,7 +1,9 @@
-import { useState } from "react"
-import { salvarRelacoes } from "./relationshipsStore"
+import { useState, useEffect } from "react"
+import { salvarRelacoes } from "./relationshipsService"
 import { criarRelacao, removerRelacao } from "./relationshipsLogic"
 import { getTip } from "../../utils/tips"
+
+import { getPersonagens } from "../characters/characterService"
 
 import Button from "../../components/ui/Button"
 import EmptyState from "../../components/ui/EmptyState"
@@ -10,18 +12,21 @@ import ConfirmModal from "../../components/modals/ConfirmModal"
 import TipBox from "../../components/ui/TipBox"
 import Toast from "../../components/ui/Toast"
 
+
 import RelationshipFormModal from "./components/RelationshipFormModal"
 import RelationshipLegend from "./components/RelationshipLegend"
 import RelationshipDetailsModal from "./components/RelationshipDetailsModal"
 import RelationshipGraph from "./components/RelationshipGraph"
 
+
 import { FiHeart, FiShare2 } from "react-icons/fi"
+
 
 export default function Relationships({ projeto, setProjeto, setTab }) {
 
-  const personagens = projeto.personagens || []
+  const [personagens, setPersonagens] = useState([])
+
   const [relacoes, setRelacoes] = useState(projeto.relacoes || [])
-  const tags = projeto.tags || []
 
   const [mostrarModal, setMostrarModal] = useState(false)
   const [personagemSelecionado, setPersonagemSelecionado] = useState(null)
@@ -31,10 +36,24 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
   const [p2, setP2] = useState("")
   const [tipo, setTipo] = useState("")
 
-  // TIP
+  // CARREGAR PERSONAGENS
+  useEffect(() => {
+    async function carregar() {
+      const data = await getPersonagens(projeto.id)
+      setPersonagens(data || [])
+    }
+
+    carregar()
+  }, [projeto.id])
+
+  // TAGS DERIVADAS
+  const tags = [...new Set(relacoes.map(r => r.tipo))].map(nome => ({
+    nome,
+    cor: "#ccc"
+  }))
+
   const tip = getTip("relationships", projeto)
 
-  // CRIAR RELAÇÃO
   function adicionarRelacao() {
     if (!p1 || !p2 || !tipo) return
 
@@ -43,23 +62,24 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
       return
     }
 
+    const tipoNormalizado = tipo.trim().toLowerCase()
+
     const resultado = criarRelacao({
       p1,
       p2,
-      tipo,
-      relacoes,
-      tags
+      tipo: tipoNormalizado,
+      relacoes
     })
 
-    setRelacoes(resultado.relacoes)
+    setRelacoes(resultado)
+
 
     setProjeto({
       ...projeto,
-      relacoes: resultado.relacoes,
-      tags: resultado.tags
+      relacoes: resultado
     })
 
-    salvarRelacoes(projeto.id, resultado.relacoes, resultado.tags)
+    salvarRelacoes(projeto.id, resultado)
 
     setMostrarModal(false)
     setTipo("")
@@ -69,41 +89,17 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     showToast("Relacionamento criado com sucesso")
   }
 
-  function removerTipo(tipoNome) {
-    const relacoesAtualizadas = relacoes.filter(
-      r => r.tipo !== tipoNome
-    )
-
-    const tagsAtualizadas = tags.filter(
-      t => t.nome !== tipoNome
-    )
-
-    setRelacoes(relacoesAtualizadas)
-
-    setProjeto({
-      ...projeto,
-      relacoes: relacoesAtualizadas,
-      tags: tagsAtualizadas
-    })
-
-    salvarRelacoes(projeto.id, relacoesAtualizadas, tagsAtualizadas)
-
-    showToast("Relacionamento deletado com sucesso")
-  }
-
   function resetarRelacoes() {
     setRelacoes([])
 
     setProjeto({
       ...projeto,
-      relacoes: [],
-      tags: []
+      relacoes: []
     })
 
-    salvarRelacoes(projeto.id, [], [])
+    salvarRelacoes(projeto.id, [])
 
     showToast("Relacionamentos resetados com sucesso")
-    
   }
 
   const tamanho = 450
@@ -120,12 +116,6 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
     }
   })
 
-  const relacoesDoPersonagem = relacoes.filter(r =>
-    r.p1 === personagemSelecionado?.id ||
-    r.p2 === personagemSelecionado?.id
-  )
-
-
   const [toast, setToast] = useState({
     show: false,
     message: ""
@@ -136,67 +126,57 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
       show: true,
       message
     })
-  }    
+  }
 
   return (
     <div>
 
+
       <h2>Relacionamentos</h2>
 
-      {/* TIP */}
-      <TipBox 
-        text={tip} 
-        color="pink"
-      />
+
+      <TipBox text={tip} color="pink" />
+
 
       <SectionStatus
         color="pink"
         icon={FiShare2}
         title={`${relacoes.length} relacionamentos conectam seus personagens`}
-        subtitle={
-          relacoes.length === 0
-            ? "Conecte personagens para dar profundidade à narrativa"
-            : relacoes.length < 4
-            ? "As relações estão começando a se formar"
-            : relacoes.length < 7
-            ? "As conexões já estão bem definidas"
-            : "Rede de relacionamentos bem desenvolvida"
-        }
-        lastEdited={projeto?.ultimaEdicaoPorAba?.relationships}
       />
+
 
       <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
         <Button onClick={() => setMostrarModal(true)}>
           + Criar Relacionamento
         </Button>
 
+
         <Button variant="danger" onClick={() => setConfirmReset(true)}>
           Resetar Relações
         </Button>
       </div>
 
+
       {personagens.length === 0 ? (
         <EmptyState
           icon={FiHeart}
           title="Nenhum personagem"
-          description="Crie personagens primeiro"
-          actionText={"Crie um Personagem"}
           onAction={() => setTab("characters")}
+          actionText="Criar Personagens"
         />
       ) : (
-
         <div className="relationships-map">
 
-          <RelationshipLegend
-            tags={tags}
-            onRemoveTipo={removerTipo}
-          />
+
+          <RelationshipLegend tags={tags} />
+
 
           <RelationshipGraph
             relacoes={relacoes}
             posicoes={posicoes}
             tags={tags}
           />
+
 
           {posicoes.map(p => (
             <div
@@ -209,8 +189,10 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
             </div>
           ))}
 
+
         </div>
       )}
+
 
       {personagemSelecionado && (
         <RelationshipDetailsModal
@@ -220,37 +202,25 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
           tags={tags}
           onClose={() => setPersonagemSelecionado(null)}
 
+
           onDeleteRelacao={(id) => {
             const atualizados = removerRelacao(relacoes, id)
 
+
             setRelacoes(atualizados)
 
-            setProjeto({
-              ...projeto,
-              relacoes: atualizados,
-              tags
-            })
-
-            salvarRelacoes(projeto.id, atualizados, tags)
-          }}
-
-          onChangeColor={(tipo, novaCor) => {
-
-            const novasTags = tags.map(t =>
-              t.nome === tipo
-                ? { ...t, cor: novaCor }
-                : t
-            )
 
             setProjeto({
               ...projeto,
-              tags: novasTags
+              relacoes: atualizados
             })
 
-            salvarRelacoes(projeto.id, relacoes, novasTags)
+
+            salvarRelacoes(projeto.id, atualizados)
           }}
         />
       )}
+
 
       {mostrarModal && (
         <RelationshipFormModal
@@ -267,10 +237,10 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
         />
       )}
 
+
       {confirmReset && (
         <ConfirmModal
           title="Resetar relações?"
-          message="Isso vai apagar todas as relações e tipos criados."
           confirmText="Resetar"
           onConfirm={() => {
             resetarRelacoes()
@@ -280,16 +250,18 @@ export default function Relationships({ projeto, setProjeto, setTab }) {
         />
       )}
 
-        <Toast
-          show={toast.show}
-          message={toast.message}
-          onClose={() =>
-            setToast({
-              show: false,
-              message: ""
-            })
-          }
-        />
+
+      <Toast
+        show={toast.show}
+        message={toast.message}
+        onClose={() =>
+          setToast({
+            show: false,
+            message: ""
+          })
+        }
+      />
+
 
     </div>
   )

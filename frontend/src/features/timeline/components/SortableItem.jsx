@@ -1,6 +1,7 @@
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 
+
 export default function SortableItem({
   capitulo,
   index,
@@ -15,10 +16,12 @@ export default function SortableItem({
     transition
   } = useSortable({ id: capitulo.id })
 
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition
   }
+
 
   return (
     <div
@@ -28,9 +31,10 @@ export default function SortableItem({
     >
       <div className="timeline-marker" />
 
+
       <div className="timeline-card">
 
-        {/* HEADER (drag aqui) */}
+
         <div
           className="timeline-header drag-area"
           {...attributes}
@@ -39,8 +43,9 @@ export default function SortableItem({
           <h3>{capitulo.titulo}</h3>
         </div>
 
-        {/* AÇÕES */}
+
         <div className="timeline-actions">
+
 
           <input
             type="number"
@@ -54,7 +59,9 @@ export default function SortableItem({
             }}
           />
 
+
         </div>
+
 
       </div>
     </div>
