@@ -105,6 +105,8 @@ export default function Timeline({ projeto, setTab }) {
         <EmptyState
           icon={FiClock}
           title="Nenhum capítulo na timeline"
+          description="Crie um capítulo na sua história primeiro"
+          hint="Depois volte aqui para os ordenadar da forma que quiser"
           actionText="Criar Capítulo"
           onAction={() => setTab("chapters")}
         />

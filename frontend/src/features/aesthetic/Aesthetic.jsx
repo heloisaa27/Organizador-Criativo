@@ -1,32 +1,52 @@
-import { useState, useEffect } from "react"
-import { atualizarEstetica } from "./aestheticStore"
+import { useState, useEffect, useRef } from "react"
+import { updateEstetica } from "./aestheticService"
 import { adicionarItem, removerItem, toggleItem } from "./aestheticLogic"
 import { getTip } from "../../utils/tips"
+
 
 import { FiFeather } from "react-icons/fi"
 import { calcularProgresso } from "../../utils/progresso"
 
+
 import TipBox from "../../components/ui/TipBox"
 import SectionStatus from "../../components/ui/SectionStatus"
 import Toast from "../../components/ui/Toast"
+
+
+import ImageSection from "./components/ImageSection"
 import ColorSection from "./components/ColorSection"
 import MusicSection from "./components/MusicSection"
 import HumorSection from "./components/HumorSection"
 import TagSection from "./components/TagSection"
 import AestheticSidebar from "./components/AestheticSidebar"
 
+
 export default function Aesthetic({ projeto, setProjeto }) {
 
-  const [cores, setCores] = useState(projeto.estetica?.cores || [])
+
+  const carregadoRef = useRef(false)
+
+
+  const [cores, setCores] = useState([])
   const [novaCor, setNovaCor] = useState("#000000")
 
-  const [musicas, setMusicas] = useState(projeto.estetica?.musicas || [])
 
-  const [humores, setHumores] = useState(projeto.estetica?.humores || [])
+  const [musicas, setMusicas] = useState([])
+
+
+  const [humores, setHumores] = useState([])
   const [novoHumor, setNovoHumor] = useState("")
 
-  const [tags, setTags] = useState(projeto.estetica?.tags || [])
+
+  const [tags, setTags] = useState([])
   const [novaTag, setNovaTag] = useState("")
+
+
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
 
   const opcoesHumor = [
     "Sereno",
@@ -39,7 +59,27 @@ export default function Aesthetic({ projeto, setProjeto }) {
     "Nostálgico"
   ]
 
+
+  // ✅ CARREGAR APENAS UMA VEZ
   useEffect(() => {
+    if (!projeto?.estetica || carregadoRef.current) return
+
+
+    setCores(projeto.estetica.cores || [])
+    setMusicas(projeto.estetica.musicas || [])
+    setHumores(projeto.estetica.humores || [])
+    setTags(projeto.estetica.tags || [])
+
+
+    carregadoRef.current = true
+  }, [projeto])
+
+
+  // ✅ SALVAR SEM LOOP
+  useEffect(() => {
+    if (!projeto?.id) return
+
+
     const novaEstetica = {
       cores,
       musicas,
@@ -47,19 +87,52 @@ export default function Aesthetic({ projeto, setProjeto }) {
       tags
     }
 
-    atualizarEstetica(projeto.id, novaEstetica)
 
+    const atual = projeto.estetica || {}
+
+
+    const igual =
+      JSON.stringify(atual) === JSON.stringify(novaEstetica)
+
+
+    if (igual) return
+
+
+    updateEstetica(projeto.id, novaEstetica)
+
+
+    // ⚠️ mantém, mas agora não causa loop
     if (setProjeto) {
-      setProjeto((prev) => ({
+      setProjeto(prev => ({
         ...prev,
         estetica: novaEstetica
       }))
     }
-  }, [cores, musicas, humores, tags, projeto.id, setProjeto])
 
+
+  }, [cores, musicas, humores, tags])
+
+
+  function showToast(message) {
+    setToast({
+      show: true,
+      message
+    })
+  }
+
+
+  // CORES
   function adicionarCor() {
+    if (cores.length >= 5) {
+      showToast("Máximo de 5 cores atingido")
+      return
+    }
+
+
     const novasCores = adicionarItem(cores, novaCor)
     if (novasCores.length === cores.length) return
+
+
     setCores(novasCores)
     showToast("Cor adicionada com sucesso")
   }
@@ -70,36 +143,61 @@ export default function Aesthetic({ projeto, setProjeto }) {
     showToast("Cor removida com sucesso")
   }
 
-  // HUMOR
 
+  // PALETA DA IMAGEM
+  function aplicarPaletaImagem(coresExtraidas) {
+    setCores(prev => {
+      const novas = [...prev]
+
+
+      coresExtraidas.forEach(cor => {
+        if (!novas.includes(cor) && novas.length < 5) {
+          novas.push(cor)
+        }
+      })
+
+
+      return novas
+    })
+
+
+    showToast("Paleta gerada a partir da imagem")
+  }
+
+
+  // HUMOR
   function toggleHumor(h) {
     setHumores(toggleItem(humores, h))
-    showToast("Humor adicionado com sucesso")
+    showToast("Humor atualizado")
   }
+
 
   function adicionarHumorCustom() {
     const novosHumores = adicionarItem(humores, novoHumor)
     if (novosHumores.length === humores.length) return
+
+
     setHumores(novosHumores)
     setNovoHumor("")
-    showToast("Humor adicionado com sucesso")
+    showToast("Humor adicionado")
   }
+
 
   function removerHumor(index) {
     setHumores(removerItem(humores, index))
-    showToast("Humor removido com sucesso")
+    showToast("Humor removido")
   }
 
-  // TAGS
 
+  // TAGS
   function adicionarTag() {
     const novasTags = adicionarItem(tags, novaTag)
-
     if (novasTags.length === tags.length) return
+
 
     setTags(novasTags)
     setNovaTag("")
-    showToast("Palavra-chave adicionada com sucesso")
+    showToast("Tag adicionada")
   }
 
 
@@ -108,53 +206,43 @@ export default function Aesthetic({ projeto, setProjeto }) {
   }
 
 
+  // MÚSICAS
   function adicionarMusica(musica) {
     const novasMusicas = adicionarItem(musicas, musica)
     setMusicas(novasMusicas)
-    showToast("Música adicionada com sucesso")
+    showToast("Música adicionada")
   }
 
 
   function removerMusica(index) {
     const novasMusicas = removerItem(musicas, index)
-
     if (novasMusicas.length === musicas.length) return
 
+
     setMusicas(novasMusicas)
-    showToast("Música removida com sucesso")
+    showToast("Música removida")
   }
+
 
   const progresso = calcularProgresso({
-  ...projeto,
-  estetica: { cores, musicas, humores, tags }
+    ...projeto,
+    estetica: { cores, musicas, humores, tags }
   })
 
-  const [toast, setToast] = useState({
-    show: false,
-    message: ""
-  })
 
-  function showToast(message) {
-    setToast({
-      show: true,
-      message
-    })
-  }
-
-  // TIP
   const tip = getTip("aesthetic", projeto)
+
 
   return (
     <div className="aesthetic-page">
 
+
       <div className="aesthetic-header">
         <h2>Estética</h2>
 
-        {/* TIP */}
-        <TipBox 
-          text={tip} 
-          color="green"
-        />
+
+        <TipBox text={tip} color="green" />
+
 
         <SectionStatus
           color="green"
@@ -175,9 +263,15 @@ export default function Aesthetic({ projeto, setProjeto }) {
         />
       </div>
 
+
       <div className="aesthetic-main">
 
+
         <div className="aesthetic-content">
+
+
+          <ImageSection onPaletteExtracted={aplicarPaletaImagem} />
+
 
           <ColorSection
             cores={cores}
@@ -187,11 +281,13 @@ export default function Aesthetic({ projeto, setProjeto }) {
             onRemove={removerCor}
           />
 
-            <MusicSection
-              musicas={musicas}
-              onAdd={adicionarMusica}
-              onRemove={removerMusica}
-            />
+
+          <MusicSection
+            musicas={musicas}
+            onAdd={adicionarMusica}
+            onRemove={removerMusica}
+          />
+
 
           <HumorSection
             opcoesHumor={opcoesHumor}
@@ -202,6 +298,8 @@ export default function Aesthetic({ projeto, setProjeto }) {
             onAddCustom={adicionarHumorCustom}
             onRemove={removerHumor}
           />
+
+
           <TagSection
             tags={tags}
             novaTag={novaTag}
@@ -209,7 +307,11 @@ export default function Aesthetic({ projeto, setProjeto }) {
             onAdd={adicionarTag}
             onRemove={removerTag}
           />
+
+
         </div>
+
+
         <AestheticSidebar
           cores={cores}
           humores={humores}
@@ -217,16 +319,15 @@ export default function Aesthetic({ projeto, setProjeto }) {
           tags={tags}
         />
 
-          <Toast
-            show={toast.show}
-            message={toast.message}
-            onClose={() =>
-              setToast({
-                show: false,
-                message: ""
-              })
-            }
-          />
+
+        <Toast
+          show={toast.show}
+          message={toast.message}
+          onClose={() =>
+            setToast({ show: false, message: "" })
+          }
+        />
+
 
       </div>
     </div>

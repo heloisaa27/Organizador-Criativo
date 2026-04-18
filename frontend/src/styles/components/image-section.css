@@ -1,0 +1,127 @@
+/* CARD BASE */
+.aesthetic-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+}
+
+
+/* HEADER */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+
+.section-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+
+.optional {
+  font-size: 12px;
+  color: #aaa;
+}
+
+
+/* SUBTITLE */
+.section-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+
+/* DROPZONE */
+.image-dropzone {
+  width: 100%;
+  height: 140px;
+  border: 2px dashed #ddd;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+  overflow: hidden;
+}
+
+
+.image-dropzone:hover {
+  border-color: #bbb;
+  background: #fafafa;
+}
+
+
+/* CONTEÚDO DO DROP */
+.dropzone-content {
+  text-align: center;
+  color: #888;
+}
+
+
+.upload-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+
+.dropzone-content p {
+  margin: 0;
+  font-size: 14px;
+}
+
+
+.dropzone-content span {
+  font-size: 12px;
+  color: #aaa;
+}
+
+
+/* PREVIEW */
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* PALETA */
+.color-palette {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+
+/* CAIXINHAS DE COR */
+.color-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  transition: transform 0.15s ease;
+}
+
+
+.color-box:hover {
+  transform: scale(1.08);
+}
+
+
+/* BOTÃO */
+.aesthetic-card button {
+  margin-top: 6px;
+}
+
+.image-preview {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 10px;
+  object-fit: cover;
+}

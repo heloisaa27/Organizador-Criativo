@@ -234,7 +234,9 @@ export default function Relationships({ projeto, setTab }) {
       {personagens.length === 0 ? (
         <EmptyState
           icon={FiHeart}
-          title="Nenhum personagem"
+          title="Nenhum personagem criado"
+          description="Crie um personagem na sua história primeiro"
+          hint="Depois volte aqui para mapear os relacionamenos"
           onAction={() => setTab("characters")}
           actionText="Criar Personagens"
         />

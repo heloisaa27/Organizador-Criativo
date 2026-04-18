@@ -15,9 +15,12 @@ export async function initDB() {
       titulo TEXT,
       genero TEXT,
       descricao TEXT,
-      atualizadoEm TEXT
+      atualizadoEm TEXT,
+      estetica TEXT
     )
   `)
+
+  
 
 
     await db.exec(`
@@ -26,7 +29,8 @@ export async function initDB() {
       projeto_id INTEGER,
       nome TEXT,
       descricao TEXT,
-      papel TEXT
+      papel TEXT,
+      cores TEXT
     )
   `)
 

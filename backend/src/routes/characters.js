@@ -5,10 +5,30 @@ export default function personagensRoutes(db) {
   const router = express.Router()
 
 
-  // PUT editar personagem
-  router.put("/:id", async (req, res) => {
-    const { id } = req.params
-    const { nome, descricao, papel } = req.body
+  // GET personagens por projeto
+  router.get("/:projetoId", async (req, res) => {
+    const { projetoId } = req.params
+
+
+    const personagens = await db.all(
+      "SELECT * FROM personagens WHERE projeto_id = ?",
+      [projetoId]
+    )
+
+
+    const formatados = personagens.map(p => ({
+      ...p,
+      cores: p.cores ? JSON.parse(p.cores) : []
+    }))
+
+
+    res.json(formatados)
+  })
+
+
+  // POST criar personagem
+  router.post("/", async (req, res) => {
+    const { projeto_id, nome, descricao, papel, cores } = req.body
 
 
     if (!nome) {
@@ -16,7 +36,40 @@ export default function personagensRoutes(db) {
     }
 
 
-    // pega o projeto antes
+    const result = await db.run(
+      `INSERT INTO personagens (projeto_id, nome, descricao, papel, cores)
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        projeto_id,
+        nome,
+        descricao || "",
+        papel || "",
+        JSON.stringify(cores || [])
+      ]
+    )
+
+
+    await db.run(
+      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
+      [new Date().toISOString(), projeto_id]
+    )
+
+
+    res.json({ id: result.lastID })
+  })
+
+
+  // PUT editar personagem (AGORA COM CORES)
+  router.put("/:id", async (req, res) => {
+    const { id } = req.params
+    const { nome, descricao, papel, cores } = req.body
+
+
+    if (!nome) {
+      return res.status(400).json({ error: "Nome é obrigatório" })
+    }
+
+
     const personagem = await db.get(
       "SELECT projeto_id FROM personagens WHERE id = ?",
       [id]
@@ -30,13 +83,18 @@ export default function personagensRoutes(db) {
 
     await db.run(
       `UPDATE personagens
-       SET nome = ?, descricao = ?, papel = ?
+       SET nome = ?, descricao = ?, papel = ?, cores = ?
        WHERE id = ?`,
-      [nome, descricao || "", papel || "", id]
+      [
+        nome,
+        descricao || "",
+        papel || "",
+        JSON.stringify(cores || []),
+        id
+      ]
     )
 
 
-    // atualiza última edição do projeto
     await db.run(
       "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
       [new Date().toISOString(), personagem.projeto_id]
@@ -52,7 +110,6 @@ export default function personagensRoutes(db) {
     const { id } = req.params
 
 
-    // pega o projeto antes de deletar
     const personagem = await db.get(
       "SELECT projeto_id FROM personagens WHERE id = ?",
       [id]
@@ -70,7 +127,6 @@ export default function personagensRoutes(db) {
     )
 
 
-    // atualiza última edição do projeto
     await db.run(
       "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
       [new Date().toISOString(), personagem.projeto_id]

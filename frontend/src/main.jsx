@@ -16,6 +16,7 @@ import './styles/components/header.css'
 import './styles/components/section-status.css'
 import './styles/components/tipbox.css'
 import './styles/components/toast.css'
+import './styles/components/image-section.css'
 
 import './styles/features/aesthetic.css'
 import './styles/features/characters.css'
