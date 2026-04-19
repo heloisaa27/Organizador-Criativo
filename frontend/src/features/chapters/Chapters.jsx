@@ -65,11 +65,11 @@ export default function Chapters({ projeto }) {
 
   const capitulosOrdenados = busca
     ? [...capitulos].sort((a, b) => {
-        const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
-        const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
-        if (aMatch === bMatch) return 0
-        return aMatch ? -1 : 1
-      })
+      const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
+      const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
+      if (aMatch === bMatch) return 0
+      return aMatch ? -1 : 1
+    })
     : capitulos
 
 
@@ -167,7 +167,7 @@ export default function Chapters({ projeto }) {
 
         {capitulos.length > 0 && (
           <div className="input-icon">
-            <FiSearch className="icon"/>
+            <FiSearch className="icon" />
             <Input
               placeholder="Buscar capítulo..."
               value={busca}
@@ -181,6 +181,8 @@ export default function Chapters({ projeto }) {
           <EmptyState
             icon={FiBookOpen}
             title="Nenhum capítulo criado ainda"
+            description="Crie o primeiro capítulo da sua história"
+            hint="Alguma coisa sobre capitulos vou botar aqui depois"
             actionText="Criar Capítulo"
             onAction={abrirCriar}
           />

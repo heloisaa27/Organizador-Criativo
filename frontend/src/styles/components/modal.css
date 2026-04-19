@@ -72,12 +72,20 @@
 
 /* alerta */
 .modal-warning {
-  background: #fff5f5;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-
-  padding: 12px;
-  border-radius: 12px;
-
-  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffe5e5;
+  color: #b40909;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
 }
+
+
+.warning-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+

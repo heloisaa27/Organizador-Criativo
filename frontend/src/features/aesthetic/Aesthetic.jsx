@@ -60,7 +60,6 @@ export default function Aesthetic({ projeto, setProjeto }) {
   ]
 
 
-  // ✅ CARREGAR APENAS UMA VEZ
   useEffect(() => {
     if (!projeto?.estetica || carregadoRef.current) return
 
@@ -75,7 +74,6 @@ export default function Aesthetic({ projeto, setProjeto }) {
   }, [projeto])
 
 
-  // ✅ SALVAR SEM LOOP
   useEffect(() => {
     if (!projeto?.id) return
 
@@ -100,15 +98,21 @@ export default function Aesthetic({ projeto, setProjeto }) {
 
     updateEstetica(projeto.id, novaEstetica)
 
-
-    // ⚠️ mantém, mas agora não causa loop
     if (setProjeto) {
-      setProjeto(prev => ({
-        ...prev,
-        estetica: novaEstetica
-      }))
-    }
+      setProjeto(prev => {
+        const igual =
+          JSON.stringify(prev.estetica || {}) === JSON.stringify(novaEstetica)
 
+
+        if (igual) return prev
+
+
+        return {
+          ...prev,
+          estetica: novaEstetica
+        }
+      })
+    }
 
   }, [cores, musicas, humores, tags])
 
@@ -252,10 +256,10 @@ export default function Aesthetic({ projeto, setProjeto }) {
             progresso.estetica === 0
               ? "Comece definindo a estética do seu projeto."
               : progresso.estetica < 40
-              ? "Sua estética está começando a tomar forma."
-              : progresso.estetica < 80
-              ? "Sua estética já está bem desenvolvida."
-              : "Estética completa! Ótimo trabalho."
+                ? "Sua estética está começando a tomar forma."
+                : progresso.estetica < 80
+                  ? "Sua estética já está bem desenvolvida."
+                  : "Estética completa! Ótimo trabalho."
           }
           progress={progresso.estetica || 0}
           showProgress

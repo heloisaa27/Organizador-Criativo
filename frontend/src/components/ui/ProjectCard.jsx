@@ -95,6 +95,7 @@ export default function ProjectCard({ projeto, onEdit, onDelete }) {
 
         <button
           className="edit"
+          data-testid="edit-project"
           onClick={(e) => {
             e.stopPropagation()
             onEdit(projeto)
@@ -105,6 +106,7 @@ export default function ProjectCard({ projeto, onEdit, onDelete }) {
 
         <button
           className="delete"
+          data-testid="delete-project"
           onClick={(e) => {
             e.stopPropagation()
             onDelete(projeto)

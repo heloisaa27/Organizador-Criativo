@@ -63,7 +63,7 @@ export default function Dashboard() {
   })
 
 
-  // salvar projeto (AJUSTADO)
+
   async function handleSave(projeto) {
 
 
@@ -79,7 +79,6 @@ export default function Dashboard() {
 
 
     } else {
-      // 🔥 REMOVIDO: personagens, capítulos, etc
       const novoProjeto = {
         ...projeto,
         atualizadoEm: new Date().toISOString()

@@ -9,19 +9,23 @@ export async function getPersonagens(projetoId) {
 
 
 // POST criar personagem dentro do projeto
-export async function createPersonagem(projetoId, personagem) {
-  const res = await fetch(`${API_URL}/projetos/${projetoId}/personagens`, {
+export async function createPersonagem(personagem) {
+  const res = await fetch(`${API_URL}/personagens`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
     },
     body: JSON.stringify(personagem)
   })
+
+
   if (!res.ok) {
     const error = await res.text()
     console.error("Erro ao criar personagem:", error)
     throw new Error("Erro ao criar personagem")
   }
+
+
   return res.json()
 }
 

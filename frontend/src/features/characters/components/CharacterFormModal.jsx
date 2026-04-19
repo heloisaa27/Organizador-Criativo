@@ -4,6 +4,7 @@ import Input from "../../../components/ui/Input"
 import Textarea from "../../../components/ui/Textarea"
 import Form from "../../../components/ui/Form"
 
+
 export default function CharacterFormModal({
   onClose,
   onSave,
@@ -15,34 +16,48 @@ export default function CharacterFormModal({
   novaCor, setNovaCor
 }) {
 
+  const listaCores = Array.isArray(cores) ? cores : []
+  const corAtual = novaCor || "#000000"
+
+
   function adicionarCor() {
-    if (!novaCor) return
-    if (cores.includes(novaCor)) return
-    setCores([...cores, novaCor])
+    if (!corAtual) return
+    if (listaCores.includes(corAtual)) return
+
+
+    setCores([...listaCores, corAtual])
   }
+
 
   function removerCor(index) {
-    setCores(cores.filter((_, i) => i !== index))
+    setCores(listaCores.filter((_, i) => i !== index))
   }
 
-  function handleSubmit() {
+
+  function handleSubmit(e) {
+    e.preventDefault() //
     onSave()
   }
 
+
   return (
     <BaseModal onClose={onClose}>
+
 
       <div className="modal-header">
         <h3 className="modal-title">
           {editando ? "Editar Personagem" : "Novo Personagem"}
         </h3>
 
+
         <Button variant="ghost" onClick={onClose}>
           ✕
         </Button>
       </div>
 
+
       <Form onSubmit={handleSubmit}>
+
 
         <Input
           label="Nome"
@@ -52,12 +67,14 @@ export default function CharacterFormModal({
           required
         />
 
+
         <Textarea
           label="Descrição"
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
           placeholder="Descrição do personagem"
         />
+
 
         <Input
           label="Papel"
@@ -66,40 +83,48 @@ export default function CharacterFormModal({
           placeholder="Ex: protagonista, antagonista..."
         />
 
-        {/* CORES */}
 
+        {/* CORES */}
         <h4>Paleta de cores</h4>
 
+
         <div className="color-controls">
+
 
           <label className="color-add">
             +
             <input
               type="color"
-              value={novaCor}
+              value={corAtual}
               onChange={(e) => setNovaCor(e.target.value)}
             />
           </label>
 
+
           <div
             className="color-preview"
-            style={{ background: novaCor }}
+            style={{ background: corAtual }}
           />
+
 
           <Button type="button" variant="secondary" onClick={adicionarCor}>
             Adicionar
           </Button>
 
+
         </div>
 
+
         <div className="color-palette">
-          {cores.map((cor, i) => (
+          {listaCores.map((cor, i) => (
             <div key={cor + i} className="tag-item">
+
 
               <div
                 className="color-box"
                 style={{ background: cor }}
               />
+
 
               <button
                 type="button"
@@ -109,23 +134,27 @@ export default function CharacterFormModal({
                 ✕
               </button>
 
+
             </div>
           ))}
         </div>
 
-        {/* AÇÕES */}
 
+        {/* AÇÕES */}
         <div className="modal-actions">
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancelar
           </Button>
+
 
           <Button variant="primary" type="submit">
             Salvar
           </Button>
         </div>
 
+
       </Form>
+
 
     </BaseModal>
   )

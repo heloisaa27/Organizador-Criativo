@@ -21,7 +21,7 @@ export default function ImageSection({ onPaletteExtracted }) {
 
 
         try {
-            // 🔥 garante que a imagem carregou DE VERDADE
+            // garante que a imagem carregou
             await img.decode()
 
 
@@ -53,7 +53,7 @@ export default function ImageSection({ onPaletteExtracted }) {
         }
 
 
-        // limpa memória (evita vazamento)
+        // limpa memória
         URL.revokeObjectURL(url)
     }
 

@@ -2,6 +2,10 @@ import { FiEdit2, FiTrash2 } from "react-icons/fi"
 
 export default function CharacterCard({ personagem, onEdit, onDelete }) {
 
+  const cores = Array.isArray(personagem.cores)
+    ? personagem.cores
+    : []
+
   return (
     <div className="character-card">
 
@@ -23,10 +27,11 @@ export default function CharacterCard({ personagem, onEdit, onDelete }) {
         </p>
 
         <div className="character-bars">
-          {(personagem.cores || []).slice(0, 3).map((cor, i) => (
+          {cores.slice(0, 3).map((cor, i) => (
             <div key={cor + i} style={{ background: cor }} />
           ))}
         </div>
+
 
       </div>
 
@@ -34,16 +39,18 @@ export default function CharacterCard({ personagem, onEdit, onDelete }) {
 
         <button
           className="edit"
+          data-testid="edit-character"
           onClick={(e) => {
             e.stopPropagation()
             onEdit(personagem)
           }}
         >
-          <FiEdit2 className="icon-edit"/>
+          <FiEdit2 className="icon-edit" />
         </button>
 
         <button
           className="delete"
+          data-testid="delete-character"
           onClick={(e) => {
             e.stopPropagation()
             onDelete(personagem)

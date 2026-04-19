@@ -3,7 +3,7 @@ export default function Form({ onSubmit, children }) {
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        onSubmit()
+        onSubmit(e)
       }}
       className="form"
     >

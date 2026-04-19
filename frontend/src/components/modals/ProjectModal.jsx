@@ -46,14 +46,16 @@ export default function ProjectModal({ projeto, onClose, onSave }) {
 
         <Input
           label="Nome do projeto"
+          data-testid ="input-nome"
           value={form.titulo}
           onChange={(e) => handleChange("titulo", e.target.value)}
           placeholder="Ex: Minha história"
           required
         />
 
-        <Textarea
+        <Input
           label="Descrição"
+          data-testid="input-descricao"
           value={form.descricao}
           onChange={(e) => handleChange("descricao", e.target.value)}
           placeholder="Sobre o que é sua história?"
@@ -61,6 +63,7 @@ export default function ProjectModal({ projeto, onClose, onSave }) {
 
         <Input
           label="Gênero"
+          data-testid="input-genero"
           value={form.genero}
           onChange={(e) => handleChange("genero", e.target.value)}
           placeholder="Ex: fantasia, romance..."

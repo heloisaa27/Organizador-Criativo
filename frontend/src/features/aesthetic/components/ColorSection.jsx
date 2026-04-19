@@ -14,8 +14,8 @@ export default function ColorSection({
                     <div 
                         className="tag-item" 
                         key={i}>
-                        <div className="color-box" style={{ background: cor }} />
-                        <button className="remove-btn" onClick={() => onRemove(i)}>
+                        <div className="color-box" data-testid="color-box" style={{ background: cor }} />
+                        <button className="remove-btn" data-testid="remove-color" onClick={() => onRemove(i)}>
                             ✕
                         </button>
                     </div>
@@ -38,7 +38,7 @@ export default function ColorSection({
                     style={{ background: novaCor }}
                 />
                 
-                <button onClick={onAdd}>Adicionar</button>
+                <button data-testid="add-color" onClick={onAdd}>Adicionar</button>
 
             </div>
         </div>

@@ -109,7 +109,8 @@ export default function Characters({ projeto }) {
         cores
       })
     } else {
-      await createPersonagem(projeto.id, {
+      await createPersonagem({
+        projeto_id: projeto.id,
         nome,
         descricao,
         papel,

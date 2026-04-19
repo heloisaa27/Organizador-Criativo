@@ -46,6 +46,7 @@ export default function ChapterCard({ capitulo, index, onOpen, onEdit, onDelete 
 
         <button
           className="edit"
+          data-testid="edit-chapter"
           onClick={(e) => {
             e.stopPropagation()
             onEdit(capitulo)
@@ -57,6 +58,7 @@ export default function ChapterCard({ capitulo, index, onOpen, onEdit, onDelete 
 
         <button
           className="delete"
+          data-testid="delete-chapter"
           onClick={(e) => {
             e.stopPropagation()
             onDelete(capitulo)

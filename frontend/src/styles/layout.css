@@ -23,3 +23,11 @@
   padding: 80px 40px;
   border-radius: 24px;
 }
+
+@media (hover: none) {
+  .card-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+

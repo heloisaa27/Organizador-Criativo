@@ -1,5 +1,7 @@
 import BaseModal from "./BaseModal"
 import Button from "../ui/Button"
+import { FiAlertTriangle } from "react-icons/fi"
+
 
 export default function ConfirmModal({
   title = "Confirmar ação",
@@ -9,8 +11,10 @@ export default function ConfirmModal({
   onClose
 }) {
 
+
   return (
     <BaseModal onClose={onClose}>
+
 
       {/* TÍTULO */}
       <div className="modal-header">
@@ -18,26 +22,32 @@ export default function ConfirmModal({
         <button className="modal-close" onClick={onClose}>×</button>
       </div>
 
+
       {/* TEXTO */}
       <p className="modal-text">
         {message}
       </p>
 
+
       {/* ALERTA */}
       <div className="modal-warning">
-        ⚠️ Esta ação não pode ser desfeita.
+        <FiAlertTriangle className="warning-icon" />
+        <span>Esta ação não pode ser desfeita.</span>
       </div>
+
 
       {/* BOTÕES */}
       <div className="modal-actions">
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" data-testid="cancel-delete" onClick={onClose}>
           Cancelar
         </Button>
 
-        <Button variant="danger" onClick={onConfirm}>
+
+        <Button variant="danger" data-testid="confirm-delete" onClick={onConfirm}>
           {confirmText}
         </Button>
       </div>
+
 
     </BaseModal>
   )
