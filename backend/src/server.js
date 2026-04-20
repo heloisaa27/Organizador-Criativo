@@ -24,7 +24,7 @@ app.use(express.json())
 // ROTA BASE
 app.get("/", (req, res) => {
   res.json({
-    message: "API Story Builder rodando",
+    message: "API Organizador-Criativo rodando",
     docs: "http://localhost:3000/docs"
   })
 })
