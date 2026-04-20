@@ -1,240 +1,227 @@
 import express from "express"
+import { atualizarProjeto } from "../utils/projetoUtils.js"
 
 
-export default function relacionamentosRoutes(db) {
-  const router = express.Router()
+export default function relacoesRoutes(db) {
+    const router = express.Router()
 
+    /**
+       * @swagger
+       * /projetos/{id}/relacoes:
+       *   get:
+       *     summary: Lista relações
+       *     tags: [Relações]
+       */
+    router.get("/:id/relacoes", async (req, res) => {
+        const { id } = req.params
 
-  // GET por projeto
-  router.get("/projeto/:projetoId", async (req, res) => {
-    const { projetoId } = req.params
 
+        const relacoes = await db.all(
+            "SELECT * FROM relacoes WHERE projeto_id = ?",
+            [id]
+        )
 
-    const relacoes = await db.all(
-      "SELECT * FROM relacoes WHERE projeto_id = ?",
-      [projetoId]
-    )
 
+        res.json(relacoes)
+    })
 
-    res.json(relacoes)
-  })
 
+    /**
+     * @swagger
+     * /projetos/{id}/relacoes:
+     *   post:
+     *     summary: Cria relações
+     *     tags: [Relações]
+     */
+    router.post("/:id/relacoes", async (req, res) => {
+        const { id } = req.params
+        const { p1, p2, tipo, cor } = req.body
 
-  // POST criar (COM COR AUTOMÁTICA)
-  router.post("/", async (req, res) => {
-    const { projeto_id, p1, p2, tipo, cor } = req.body
 
+        if (!p1 || !p2 || !tipo) {
+            return res.status(400).json({ error: "Dados inválidos" })
+        }
 
-    if (!projeto_id || !p1 || !p2 || !tipo) {
-      return res.status(400).json({ error: "Dados inválidos" })
-    }
 
+        if (p1 === p2) {
+            return res.status(400).json({ error: "Relacionamento inválido" })
+        }
 
-    if (p1 === p2) {
-      return res.status(400).json({ error: "Relacionamento inválido" })
-    }
 
+        const tipoFormatado = tipo.toLowerCase().trim()
 
-    const tipoFormatado = tipo.toLowerCase().trim()
 
+        const existente = await db.get(
+            `SELECT cor FROM relacoes
+     WHERE projeto_id = ? AND tipo = ?
+     LIMIT 1`,
+            [id, tipoFormatado]
+        )
 
-    const existente = await db.get(
-      `SELECT cor FROM relacoes
-       WHERE projeto_id = ? AND tipo = ?
-       LIMIT 1`,
-      [projeto_id, tipoFormatado]
-    )
 
+        const corFinal = cor || existente?.cor || "#cccccc"
 
-    const corFinal = cor || existente?.cor || "#cccccc"
 
+        const result = await db.run(
+            `INSERT INTO relacoes (projeto_id, p1, p2, tipo, cor)
+     VALUES (?, ?, ?, ?, ?)`,
+            [id, p1, p2, tipoFormatado, corFinal]
+        )
 
-    const result = await db.run(
-      `INSERT INTO relacoes (projeto_id, p1, p2, tipo, cor)
-       VALUES (?, ?, ?, ?, ?)`,
-      [
-        projeto_id,
-        Number(p1),
-        Number(p2),
-        tipoFormatado,
-        corFinal
-      ]
-    )
 
+        await db.run(
+            "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
+            [new Date().toISOString(), id]
+        )
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), projeto_id]
-    )
 
+        res.json({ id: result.lastID })
+    })
 
-    res.json({ id: result.lastID })
-  })
 
+    /**
+     * @swagger
+     * /projetos/{id}/relacoes/tipo/{tipo}/cor:
+     *   put:
+     *     summary: Atualiza cor de todas relações de um tipo
+     *     tags: [Relações]
+     */
+    router.put("/:id/relacoes/tipo/:tipo/cor", async (req, res) => {
+        const { id, tipo } = req.params
+        const { cor } = req.body
 
-  // DELETE relação única
-  router.delete("/:id", async (req, res) => {
-    const { id } = req.params
 
+        if (!cor || !/^#[0-9A-Fa-f]{6}$/.test(cor)) {
+            return res.status(400).json({ error: "Cor inválida" })
+        }
 
-    const relacao = await db.get(
-      "SELECT projeto_id FROM relacoes WHERE id = ?",
-      [id]
-    )
 
+        await db.run(
+            "UPDATE relacoes SET cor = ? WHERE tipo = ? AND projeto_id = ?",
+            [cor, tipo, id]
+        )
 
-    if (!relacao) {
-      return res.status(404).json({ error: "Relação não encontrada" })
-    }
 
+        await atualizarProjeto(db, id)
 
-    await db.run("DELETE FROM relacoes WHERE id = ?", [id])
 
+        res.json({ success: true })
+    })
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), relacao.projeto_id]
-    )
 
+    /**
+    * @swagger
+    * /projetos/{id}/relacoes/tipo/{tipo}:
+    *   put:
+    *     summary: Renomeia um tipo de relação
+    *     tags: [Relações]
+    */
+    router.put("/:id/relacoes/tipo/:tipo", async (req, res) => {
+        const { id, tipo } = req.params
+        const { novoTipo } = req.body
 
-    res.json({ success: true })
-  })
 
+        if (!novoTipo) {
+            return res.status(400).json({ error: "Novo tipo inválido" })
+        }
 
-  // UPDATE COR (UMA RELAÇÃO)
-  router.put("/:id/cor", async (req, res) => {
-    const { id } = req.params
-    const { cor } = req.body
 
+        await db.run(
+            "UPDATE relacoes SET tipo = ? WHERE tipo = ? AND projeto_id = ?",
+            [novoTipo.toLowerCase().trim(), tipo, id]
+        )
 
-    if (!cor || !/^#[0-9A-Fa-f]{6}$/.test(cor)) {
-      return res.status(400).json({ error: "Cor inválida" })
-    }
 
+        await atualizarProjeto(db, id)
 
-    const relacao = await db.get(
-      "SELECT projeto_id FROM relacoes WHERE id = ?",
-      [id]
-    )
 
+        res.json({ success: true })
+    })
 
-    await db.run(
-      "UPDATE relacoes SET cor = ? WHERE id = ?",
-      [cor, id]
-    )
 
+    /**
+    * @swagger
+    * /projetos/{id}/relacoes/reset:
+    *   delete:
+    *     summary: Reseta todas relações
+    *     tags: [Relações]
+    */
+    router.delete("/:id/relacoes/reset", async (req, res) => {
+        const { id } = req.params
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), relacao.projeto_id]
-    )
 
+        await db.run(
+            "DELETE FROM relacoes WHERE projeto_id = ?",
+            [id]
+        )
 
-    res.json({ success: true })
-  })
 
+        await atualizarProjeto(db, id)
 
-  // UPDATE COR POR TIPO
-  router.put("/tipo/:tipo/cor", async (req, res) => {
-    const { tipo } = req.params
-    const { cor } = req.body
 
+        res.json({ success: true })
+    })
 
-    if (!cor || !/^#[0-9A-Fa-f]{6}$/.test(cor)) {
-      return res.status(400).json({ error: "Cor inválida" })
-    }
 
 
-    const relacao = await db.get(
-      "SELECT projeto_id FROM relacoes WHERE tipo = ? LIMIT 1",
-      [tipo]
-    )
 
+    /**
+ * @swagger
+ * /projetos/{id}/relacoes/{relacaoId}:
+ *   delete:
+ *     summary: Remove uma relação específica
+ *     tags: [Relações]
+ */
+    router.delete("/:id/relacoes/:relacaoId", async (req, res) => {
+        const { id, relacaoId } = req.params
 
-    if (!relacao) return res.json({ success: true })
 
+        const relacao = await db.get(
+            "SELECT * FROM relacoes WHERE id = ? AND projeto_id = ?",
+            [relacaoId, id]
+        )
 
-    await db.run(
-      "UPDATE relacoes SET cor = ? WHERE tipo = ?",
-      [cor, tipo]
-    )
 
+        if (!relacao) {
+            return res.status(404).json({ error: "Relação não encontrada" })
+        }
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), relacao.projeto_id]
-    )
 
+        await db.run(
+            "DELETE FROM relacoes WHERE id = ? AND projeto_id = ?",
+            [relacaoId, id]
+        )
 
-    res.json({ success: true })
-  })
 
+        await atualizarProjeto(db, id)
 
-  // RENOMEAR TIPO
-  router.put("/tipo/:tipo", async (req, res) => {
-    const { tipo } = req.params
-    const { novoTipo } = req.body
 
+        res.json({ success: true })
+    })
 
-    if (!novoTipo) {
-      return res.status(400).json({ error: "Novo tipo inválido" })
-    }
 
+    /**
+    * @swagger
+    * /projetos/{id}/relacoes/tipo/{tipo}:
+    *   delete:
+    *     summary: Remove todas relações de um tipo
+    *     tags: [Relações]
+    */
+    router.delete("/:id/relacoes/tipo/:tipo", async (req, res) => {
+        const { id, tipo } = req.params
 
-    const relacao = await db.get(
-      "SELECT projeto_id FROM relacoes WHERE tipo = ? LIMIT 1",
-      [tipo]
-    )
 
+        await db.run(
+            "DELETE FROM relacoes WHERE tipo = ? AND projeto_id = ?",
+            [tipo, id]
+        )
 
-    if (!relacao) return res.json({ success: true })
 
+        await atualizarProjeto(db, id)
 
-    await db.run(
-      "UPDATE relacoes SET tipo = ? WHERE tipo = ?",
-      [novoTipo.toLowerCase().trim(), tipo]
-    )
 
+        res.json({ success: true })
+    })
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), relacao.projeto_id]
-    )
-
-
-    res.json({ success: true })
-  })
-
-
-  // DELETE TIPO
-  router.delete("/tipo/:tipo", async (req, res) => {
-    const { tipo } = req.params
-
-
-    const relacao = await db.get(
-      "SELECT projeto_id FROM relacoes WHERE tipo = ? LIMIT 1",
-      [tipo]
-    )
-
-
-    if (!relacao) return res.json({ success: true })
-
-
-    await db.run(
-      "DELETE FROM relacoes WHERE tipo = ?",
-      [tipo]
-    )
-
-
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), relacao.projeto_id]
-    )
-
-
-    res.json({ success: true })
-  })
-
-
-  return router
+     return router
 }

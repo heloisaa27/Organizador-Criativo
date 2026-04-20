@@ -47,28 +47,35 @@ export default function Characters({ projeto }) {
   const [novaCor, setNovaCor] = useState("#000000")
 
 
-  // CARREGAR DO BACKEND
+  const [toast, setToast] = useState({
+    show: false,
+    message: ""
+  })
+
+
+  function showToast(message) {
+    setToast({ show: true, message })
+  }
+
+
+  async function reloadPersonagens() {
+    const data = await getPersonagens(projeto.id)
+    setPersonagens(data || [])
+  }
+
+
   useEffect(() => {
-    async function carregar() {
-      const data = await getPersonagens(projeto.id)
-      setPersonagens(data || [])
-    }
-
-
-    carregar()
+    reloadPersonagens()
   }, [projeto.id])
 
 
-  // ordenação
   const personagensOrdenados = busca
     ? [...personagens].sort((a, b) => {
-      const aMatch = a.nome.toLowerCase().includes(busca.toLowerCase())
-      const bMatch = b.nome.toLowerCase().includes(busca.toLowerCase())
-
-
-      if (aMatch === bMatch) return 0
-      return aMatch ? -1 : 1
-    })
+        const aMatch = a.nome.toLowerCase().includes(busca.toLowerCase())
+        const bMatch = b.nome.toLowerCase().includes(busca.toLowerCase())
+        if (aMatch === bMatch) return 0
+        return aMatch ? -1 : 1
+      })
     : personagens
 
 
@@ -95,13 +102,12 @@ export default function Characters({ projeto }) {
   }
 
 
-  // SALVAR
   async function salvar() {
     if (!nome.trim()) return
 
 
     if (editando) {
-      await updatePersonagem({
+      await updatePersonagem(projeto.id, {
         ...editando,
         nome,
         descricao,
@@ -109,8 +115,7 @@ export default function Characters({ projeto }) {
         cores
       })
     } else {
-      await createPersonagem({
-        projeto_id: projeto.id,
+      await createPersonagem(projeto.id, {
         nome,
         descricao,
         papel,
@@ -119,8 +124,7 @@ export default function Characters({ projeto }) {
     }
 
 
-    const atualizados = await getPersonagens(projeto.id)
-    setPersonagens(atualizados)
+    await reloadPersonagens()
 
 
     setMostrarModal(false)
@@ -134,33 +138,18 @@ export default function Characters({ projeto }) {
     )
   }
 
-  // DELETE 
+
   async function deletarConfirmado() {
-    await deletePersonagem(confirmDelete.id)
+    await deletePersonagem(projeto.id, confirmDelete.id)
 
 
-    const atualizados = await getPersonagens(projeto.id)
-    setPersonagens(atualizados)
+    await reloadPersonagens()
 
 
     setConfirmDelete(null)
 
 
     showToast("Personagem deletado com sucesso")
-  }
-
-
-  const [toast, setToast] = useState({
-    show: false,
-    message: ""
-  })
-
-
-  function showToast(message) {
-    setToast({
-      show: true,
-      message
-    })
   }
 
 
@@ -263,12 +252,11 @@ export default function Characters({ projeto }) {
         show={toast.show}
         message={toast.message}
         onClose={() =>
-          setToast({
-            show: false,
-            message: ""
-          })
+          setToast({ show: false, message: "" })
         }
       />
+
+
     </div>
   )
 }

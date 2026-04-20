@@ -3,7 +3,10 @@ import {
   getRelacoes,
   createRelacao,
   deleteRelacao,
-  updateCorRelacao
+  updateCorTipoRelacao,
+  renameTipoRelacao,
+  deleteTipoRelacao,
+  resetRelacoes
 } from "./relationshipsService"
 
 
@@ -47,10 +50,7 @@ export default function Relationships({ projeto, setTab }) {
   const [tipo, setTipo] = useState("")
 
 
-  const [toast, setToast] = useState({
-    show: false,
-    message: ""
-  })
+  const [toast, setToast] = useState({ show: false, message: "" })
 
 
   function showToast(message) {
@@ -58,18 +58,18 @@ export default function Relationships({ projeto, setTab }) {
   }
 
 
+  async function reload() {
+    const personagensData = await getPersonagens(projeto.id)
+    const relacoesData = await getRelacoes(projeto.id)
+
+
+    setPersonagens(personagensData || [])
+    setRelacoes(relacoesData || [])
+  }
+
+
   useEffect(() => {
-    async function carregar() {
-      const personagensData = await getPersonagens(projeto.id)
-      const relacoesData = await getRelacoes(projeto.id)
-
-
-      setPersonagens(personagensData || [])
-      setRelacoes(relacoesData || [])
-    }
-
-
-    carregar()
+    reload()
   }, [projeto.id])
 
 
@@ -99,23 +99,10 @@ export default function Relationships({ projeto, setTab }) {
     }
 
 
-    // procura se já existe esse tipo e pega a cor
-    const tipoExistente = relacoes.find(r => r.tipo === tipo)
+    await createRelacao(projeto.id, { p1, p2, tipo })
 
 
-    const cor = tipoExistente?.cor || "#cccccc"
-
-
-    await createRelacao(projeto.id, {
-      p1,
-      p2,
-      tipo,
-      cor // agora envia a cor
-    })
-
-
-    const atualizadas = await getRelacoes(projeto.id)
-    setRelacoes(atualizadas)
+    await reload()
 
 
     setMostrarModal(false)
@@ -129,59 +116,34 @@ export default function Relationships({ projeto, setTab }) {
 
 
   async function deletarRelacao(id) {
-    await deleteRelacao(id)
-    const atualizadas = await getRelacoes(projeto.id)
-    setRelacoes(atualizadas)
+    await deleteRelacao(projeto.id, id)
+    await reload()
   }
 
 
   async function alterarCorPorTipo(tipo, novaCor) {
-    await fetch(`http://localhost:3000/relacoes/tipo/${tipo}/cor`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ cor: novaCor })
-    })
-
-
-    const atualizadas = await getRelacoes(projeto.id)
-    setRelacoes(atualizadas)
+    await updateCorTipoRelacao(projeto.id, tipo, novaCor)
+    await reload()
   }
 
 
   async function renomearTipo(tipoAntigo, novoTipo) {
-    await fetch(`http://localhost:3000/relacoes/tipo/${tipoAntigo}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ novoTipo })
-    })
-
-
-    const atualizadas = await getRelacoes(projeto.id)
-    setRelacoes(atualizadas)
-
+    await renameTipoRelacao(projeto.id, tipoAntigo, novoTipo)
+    await reload()
     setTipoSelecionado(novoTipo)
   }
 
 
-
   async function deletarTipo(tipo) {
-    await fetch(`http://localhost:3000/relacoes/tipo/${tipo}`, {
-      method: "DELETE"
-    })
-
-
-    const atualizadas = await getRelacoes(projeto.id)
-    setRelacoes(atualizadas)
+    await deleteTipoRelacao(projeto.id, tipo)
+    await reload()
   }
 
 
-  function resetarRelacoes() {
-    setRelacoes([])
-    showToast("Relacionamentos resetados (local)")
+  async function resetarRelacoes() {
+    await resetRelacoes(projeto.id)
+    await reload()
+    showToast("Relacionamentos resetados")
   }
 
 
@@ -235,8 +197,7 @@ export default function Relationships({ projeto, setTab }) {
         <EmptyState
           icon={FiHeart}
           title="Nenhum personagem criado"
-          description="Crie um personagem na sua história primeiro"
-          hint="Depois volte aqui para mapear os relacionamenos"
+          description="Crie um personagem primeiro"
           onAction={() => setTab("characters")}
           actionText="Criar Personagens"
         />
@@ -333,9 +294,7 @@ export default function Relationships({ projeto, setTab }) {
       <Toast
         show={toast.show}
         message={toast.message}
-        onClose={() =>
-          setToast({ show: false, message: "" })
-        }
+        onClose={() => setToast({ show: false, message: "" })}
       />
 
 

@@ -10,7 +10,13 @@ import TipBox from "../../components/ui/TipBox"
 import { FiClock, FiCalendar } from "react-icons/fi"
 import SortableItem from "./components/SortableItem"
 import { DndContext, closestCenter } from "@dnd-kit/core"
-import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable"
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove
+} from "@dnd-kit/sortable"
+
+
 import { getTip } from "../../utils/tips"
 
 
@@ -21,7 +27,7 @@ export default function Timeline({ projeto, setTab }) {
   const tip = getTip("timeline", projeto)
 
 
-  // CARREGAR DO BACKEND
+  // CARREGAR
   useEffect(() => {
     async function carregar() {
       const data = await getCapitulos(projeto.id)
@@ -36,11 +42,25 @@ export default function Timeline({ projeto, setTab }) {
     const { active, over } = event
 
 
-    if (!over || active.id === over.id) return
+    if (!over) return
 
 
-    const oldIndex = capitulos.findIndex(c => c.id === active.id)
-    const newIndex = capitulos.findIndex(c => c.id === over.id)
+    const activeId = Number(active.id)
+    const overId = Number(over.id)
+
+
+    if (activeId === overId) return
+
+
+    const oldIndex = capitulos.findIndex(c => c.id === activeId)
+    const newIndex = capitulos.findIndex(c => c.id === overId)
+
+
+    // 🔥 proteção extra
+    if (oldIndex === -1 || newIndex === -1) {
+      console.error("Erro ao encontrar índices", { activeId, overId })
+      return
+    }
 
 
     const novos = arrayMove(capitulos, oldIndex, newIndex)
@@ -49,14 +69,13 @@ export default function Timeline({ projeto, setTab }) {
     setCapitulos(novos)
 
 
-    // recalcular ordem
     const comOrdem = novos.map((c, index) => ({
       id: c.id,
       ordem: index
     }))
 
 
-    await updateOrdemCapitulos(comOrdem)
+    await updateOrdemCapitulos(projeto.id, comOrdem)
   }
 
 
@@ -80,7 +99,7 @@ export default function Timeline({ projeto, setTab }) {
     }))
 
 
-    await updateOrdemCapitulos(comOrdem)
+    await updateOrdemCapitulos(projeto.id, comOrdem)
   }
 
 
@@ -106,14 +125,17 @@ export default function Timeline({ projeto, setTab }) {
           icon={FiClock}
           title="Nenhum capítulo na timeline"
           description="Crie um capítulo na sua história primeiro"
-          hint="Depois volte aqui para os ordenadar da forma que quiser"
+          hint="Depois volte aqui para os ordenar da forma que quiser"
           actionText="Criar Capítulo"
           onAction={() => setTab("chapters")}
         />
       ) : (
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
           <SortableContext
-            items={capitulos.map(c => c.id)}
+            items={capitulos.map(c => String(c.id))} // 🔥 CORREÇÃO
             strategy={verticalListSortingStrategy}
           >
             <div className="timeline-container">

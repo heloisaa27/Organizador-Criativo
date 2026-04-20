@@ -1,128 +1,131 @@
-
-
 import express from "express"
+import { atualizarProjeto } from "../utils/projetoUtils.js"
 
 
 export default function capitulosRoutes(db) {
-  const router = express.Router()
+    const router = express.Router()
+
+    /**
+     * @swagger
+     * /projetos/{id}/capitulos:
+     *   get:
+     *     summary: Lista capítulos
+     *     tags: [Capítulos]
+     */
+    router.get("/:id/capitulos", async (req, res) => {
+        const { id } = req.params
 
 
-  // PUT reordenar capítulos
-  router.put("/reordenar", async (req, res) => {
-    const { capitulos } = req.body
-
-
-    if (!Array.isArray(capitulos)) {
-      return res.status(400).json({ error: "Formato inválido" })
-    }
-
-
-    try {
-      for (const c of capitulos) {
-        await db.run(
-          "UPDATE capitulos SET ordem = ? WHERE id = ?",
-          [c.ordem, c.id]
-        )
-      }
-
-
-      // atualizar projeto
-      const primeiro = capitulos[0]
-
-
-      if (primeiro) {
-        const cap = await db.get(
-          "SELECT projeto_id FROM capitulos WHERE id = ?",
-          [primeiro.id]
+        const capitulos = await db.all(
+            "SELECT * FROM capitulos WHERE projeto_id = ? ORDER BY ordem",
+            [id]
         )
 
+        res.json(capitulos)
+    })
 
-        if (cap) {
-          await db.run(
-            "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-            [new Date().toISOString(), cap.projeto_id]
-          )
+
+    /**
+     * @swagger
+     * /projetos/{id}/capitulos:
+     *   post:
+     *     summary: Cria capítulo
+     *     tags: [Capítulos]
+     */
+    router.post("/:id/capitulos", async (req, res) => {
+        const { id } = req.params
+        const { titulo } = req.body
+
+
+        if (!titulo) {
+            return res.status(400).json({ error: "Título é obrigatório" })
         }
-      }
 
 
-      res.json({ success: true })
+        const result = await db.run(
+            `INSERT INTO capitulos (projeto_id, titulo, conteudo, ordem)
+       VALUES (?, ?, ?, ?)`,
+            [id, titulo, "", 0]
+        )
 
 
-    } catch (error) {
-      console.error("Erro ao reordenar:", error)
-      res.status(500).json({ error: "Erro ao reordenar capítulos" })
-    }
-  })
+        await atualizarProjeto(db, id)
 
 
-  // PUT editar capítulo
-  router.put("/:id", async (req, res) => {
-    const { id } = req.params
-    const { titulo, conteudo } = req.body
+        res.json({ id: result.lastID })
+    })
+
+    /**
+ * @swagger
+ * /projetos/{id}/capitulos/{capituloId}:
+ *   put:
+ *     summary: Atualiza um capítulo
+ *     tags: [Capítulos]
+ */
+    router.put("/:id/capitulos/:capituloId", async (req, res) => {
+        const { id, capituloId } = req.params
+        const { titulo, conteudo } = req.body
 
 
-    const capitulo = await db.get(
-      "SELECT projeto_id FROM capitulos WHERE id = ?",
-      [id]
-    )
+        const capitulo = await db.get(
+            "SELECT * FROM capitulos WHERE id = ? AND projeto_id = ?",
+            [capituloId, id]
+        )
 
 
-    if (!capitulo) {
-      return res.status(404).json({ error: "Capítulo não encontrado" })
-    }
+        if (!capitulo) {
+            console.log("Capítulo não encontrado:", capituloId)
+            return res.status(404).json({ error: "Capítulo não encontrado" })
+        }
 
 
-    await db.run(
-      `UPDATE capitulos
-       SET titulo = COALESCE(?, titulo),
-           conteudo = COALESCE(?, conteudo)
-       WHERE id = ?`,
-      [titulo, conteudo, id]
-    )
+        await db.run(
+            `UPDATE capitulos
+        SET titulo = COALESCE(?, titulo),
+            conteudo = COALESCE(?, conteudo)
+        WHERE id = ? AND projeto_id = ?`,
+            [titulo, conteudo, capituloId, id]
+        )
 
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), capitulo.projeto_id]
-    )
+        await atualizarProjeto(db, id)
 
 
-    res.json({ success: true })
-  })
+        res.json({ success: true })
+    })
+
+    /**
+ * @swagger
+ * /projetos/{id}/capitulos/{capituloId}:
+ *   delete:
+ *     summary: Deleta um capítulo
+ *     tags: [Capítulos]
+ */
+    router.delete("/:id/capitulos/:capituloId", async (req, res) => {
+        const { id, capituloId } = req.params
 
 
-  // DELETE capítulo
-  router.delete("/:id", async (req, res) => {
-    const { id } = req.params
+        const capitulo = await db.get(
+            "SELECT * FROM capitulos WHERE id = ? AND projeto_id = ?",
+            [capituloId, id]
+        )
 
 
-    const capitulo = await db.get(
-      "SELECT projeto_id FROM capitulos WHERE id = ?",
-      [id]
-    )
+        if (!capitulo) {
+            return res.status(404).json({ error: "Capítulo não encontrado" })
+        }
 
 
-    if (!capitulo) {
-      return res.status(404).json({ error: "Capítulo não encontrado" })
-    }
+        await db.run(
+            "DELETE FROM capitulos WHERE id = ? AND projeto_id = ?",
+            [capituloId, id]
+        )
 
 
-    await db.run(
-      "DELETE FROM capitulos WHERE id = ?",
-      [id]
-    )
+        await atualizarProjeto(db, id)
 
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), capitulo.projeto_id]
-    )
-
-
-    res.json({ success: true })
-  })
-
-
-  return router
+        res.json({ success: true })
+    })
+     return router
 }

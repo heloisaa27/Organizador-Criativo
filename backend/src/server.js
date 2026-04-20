@@ -8,9 +8,10 @@ import { swaggerSpec } from "./swagger.js"
 
 
 import projetosRoutes from "./routes/projects.js"
-import personagensRoutes from "./routes/characters.js"
 import capitulosRoutes from "./routes/chapters.js"
-import relacionamentosRoutes from "./routes/relationships.js"
+import linhaDoTempoRoutes from "./routes/timeline.js"
+import personagensRoutes from "./routes/characters.js"
+import relacoesRoutes from "./routes/relationships.js"
 
 
 const app = express()
@@ -23,7 +24,7 @@ app.use(express.json())
 // ROTA BASE
 app.get("/", (req, res) => {
   res.json({
-    message: "API Story Builder rodando 🚀",
+    message: "API Story Builder rodando",
     docs: "http://localhost:3000/docs"
   })
 })
@@ -36,14 +37,14 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 initDB()
   .then((db) => {
 
-
     app.use("/projetos", projetosRoutes(db))
-    app.use("/personagens", personagensRoutes(db))
-    app.use("/capitulos", capitulosRoutes(db))
-    app.use("/relacoes", relacionamentosRoutes(db))
+    app.use("/projetos", personagensRoutes(db))
+    app.use("/projetos", relacoesRoutes(db))
+    app.use("/projetos", linhaDoTempoRoutes(db))
+    app.use("/projetos", capitulosRoutes(db))
 
 
-    // RESET
+    // RESET (DEV)
     if (process.env.NODE_ENV !== "production") {
       app.delete("/reset", async (req, res) => {
         await db.run("DELETE FROM personagens")

@@ -1,141 +1,116 @@
 import express from "express"
+import { atualizarProjeto } from "../utils/projetoUtils.js"
 
 
 export default function personagensRoutes(db) {
   const router = express.Router()
 
 
-  // GET personagens por projeto
-  router.get("/:projetoId", async (req, res) => {
-    const { projetoId } = req.params
+  /**
+     * @swagger
+     * /projetos/{id}/personagens:
+     *   get:
+     *     summary: Lista personagens do projeto
+     *     tags: [Personagens]
+     */
+    router.get("/:id/personagens", async (req, res) => {
+        const { id } = req.params
 
 
-    const personagens = await db.all(
-      "SELECT * FROM personagens WHERE projeto_id = ?",
-      [projetoId]
-    )
+        const personagens = await db.all(
+            "SELECT * FROM personagens WHERE projeto_id = ?",
+            [id]
+        )
 
 
-    const formatados = personagens.map(p => ({
-      ...p,
-      cores: p.cores ? JSON.parse(p.cores) : []
-    }))
+        res.json(personagens.map(p => ({
+            ...p,
+            cores: p.cores ? JSON.parse(p.cores) : []
+        })))
+    })
 
 
-    res.json(formatados)
-  })
+    /**
+     * @swagger
+     * /projetos/{id}/personagens:
+     *   post:
+     *     summary: Cria personagem
+     *     tags: [Personagens]
+     */
+    router.post("/:id/personagens", async (req, res) => {
+        const { id } = req.params
+        const { nome, descricao, papel, cores } = req.body
 
 
-  // POST criar personagem
-  router.post("/", async (req, res) => {
-    const { projeto_id, nome, descricao, papel, cores } = req.body
+        if (!nome) {
+            return res.status(400).json({ error: "Nome é obrigatório" })
+        }
 
 
-    if (!nome) {
-      return res.status(400).json({ error: "Nome é obrigatório" })
-    }
-
-
-    const result = await db.run(
-      `INSERT INTO personagens (projeto_id, nome, descricao, papel, cores)
+        const result = await db.run(
+            `INSERT INTO personagens (projeto_id, nome, descricao, papel, cores)
        VALUES (?, ?, ?, ?, ?)`,
-      [
-        projeto_id,
-        nome,
-        descricao || "",
-        papel || "",
-        JSON.stringify(cores || [])
-      ]
-    )
+            [id, nome, descricao || "", papel || "", JSON.stringify(cores || [])]
+        )
 
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), projeto_id]
-    )
+        await atualizarProjeto(db, id)
 
 
-    res.json({ id: result.lastID })
-  })
+        res.json({ id: result.lastID })
+    })
 
 
-  // PUT editar personagem (AGORA COM CORES)
-  router.put("/:id", async (req, res) => {
-    const { id } = req.params
-    const { nome, descricao, papel, cores } = req.body
+    /**
+     * @swagger
+     * /projetos/{id}/personagens/{personagemId}:
+     *   put:
+     *     summary: Atualiza personagem
+     *     tags: [Personagens]
+     */
+    router.put("/:id/personagens/:personagemId", async (req, res) => {
+        const { id, personagemId } = req.params
+        const { nome, descricao, papel, cores } = req.body
 
 
-    if (!nome) {
-      return res.status(400).json({ error: "Nome é obrigatório" })
-    }
-
-
-    const personagem = await db.get(
-      "SELECT projeto_id FROM personagens WHERE id = ?",
-      [id]
-    )
-
-
-    if (!personagem) {
-      return res.status(404).json({ error: "Personagem não encontrado" })
-    }
-
-
-    await db.run(
-      `UPDATE personagens
+        await db.run(
+            `UPDATE personagens
        SET nome = ?, descricao = ?, papel = ?, cores = ?
-       WHERE id = ?`,
-      [
-        nome,
-        descricao || "",
-        papel || "",
-        JSON.stringify(cores || []),
-        id
-      ]
-    )
+       WHERE id = ? AND projeto_id = ?`,
+            [nome, descricao, papel, JSON.stringify(cores || []), personagemId, id]
+        )
 
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), personagem.projeto_id]
-    )
+        await atualizarProjeto(db, id)
 
 
-    res.json({ success: true })
-  })
+        res.json({ success: true })
+    })
 
 
-  // DELETE personagem
-  router.delete("/:id", async (req, res) => {
-    const { id } = req.params
+    /**
+     * @swagger
+     * /projetos/{id}/personagens/{personagemId}:
+     *   delete:
+     *     summary: Deleta personagem
+     *     tags: [Personagens]
+     */
+    router.delete("/:id/personagens/:personagemId", async (req, res) => {
+        const { id, personagemId } = req.params
 
 
-    const personagem = await db.get(
-      "SELECT projeto_id FROM personagens WHERE id = ?",
-      [id]
-    )
+        await db.run(
+            "DELETE FROM personagens WHERE id = ? AND projeto_id = ?",
+            [personagemId, id]
+        )
 
 
-    if (!personagem) {
-      return res.status(404).json({ error: "Personagem não encontrado" })
-    }
+        await atualizarProjeto(db, id)
 
 
-    await db.run(
-      "DELETE FROM personagens WHERE id = ?",
-      [id]
-    )
+        res.json({ success: true })
+    })
 
+     return router
 
-    await db.run(
-      "UPDATE projetos SET atualizadoEm = ? WHERE id = ?",
-      [new Date().toISOString(), personagem.projeto_id]
-    )
-
-
-    res.json({ success: true })
-  })
-
-
-  return router
 }

@@ -51,12 +51,19 @@ export default function Chapters({ projeto }) {
   })
 
 
+  function showToast(message) {
+    setToast({ show: true, message })
+  }
+
+
+  async function reloadCapitulos() {
+    const data = await getCapitulos(projeto.id)
+    setCapitulos(data || [])
+  }
+
+
   useEffect(() => {
-    async function carregar() {
-      const data = await getCapitulos(projeto.id)
-      setCapitulos(data || [])
-    }
-    carregar()
+    reloadCapitulos()
   }, [projeto.id])
 
 
@@ -65,17 +72,12 @@ export default function Chapters({ projeto }) {
 
   const capitulosOrdenados = busca
     ? [...capitulos].sort((a, b) => {
-      const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
-      const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
-      if (aMatch === bMatch) return 0
-      return aMatch ? -1 : 1
-    })
+        const aMatch = a.titulo.toLowerCase().includes(busca.toLowerCase())
+        const bMatch = b.titulo.toLowerCase().includes(busca.toLowerCase())
+        if (aMatch === bMatch) return 0
+        return aMatch ? -1 : 1
+      })
     : capitulos
-
-
-  function showToast(message) {
-    setToast({ show: true, message })
-  }
 
 
   function abrirCriar() {
@@ -97,7 +99,7 @@ export default function Chapters({ projeto }) {
 
 
     if (editando) {
-      await updateCapitulo({
+      await updateCapitulo(projeto.id, {
         ...editando,
         titulo
       })
@@ -106,8 +108,7 @@ export default function Chapters({ projeto }) {
     }
 
 
-    const atualizados = await getCapitulos(projeto.id)
-    setCapitulos(atualizados)
+    await reloadCapitulos()
 
 
     setMostrarModal(false)
@@ -123,11 +124,10 @@ export default function Chapters({ projeto }) {
 
 
   async function deletarConfirmado() {
-    await deleteCapitulo(confirmDelete.id)
+    await deleteCapitulo(projeto.id, confirmDelete.id)
 
 
-    const atualizados = await getCapitulos(projeto.id)
-    setCapitulos(atualizados)
+    await reloadCapitulos()
 
 
     setConfirmDelete(null)
@@ -252,7 +252,7 @@ export default function Chapters({ projeto }) {
       onChange={async (novoTexto) => {
 
 
-        await updateCapitulo({
+        await updateCapitulo(projeto.id, {
           ...capituloAtivo,
           conteudo: novoTexto
         })

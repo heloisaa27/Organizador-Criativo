@@ -14,7 +14,7 @@ export default function SortableItem({
     setNodeRef,
     transform,
     transition
-  } = useSortable({ id: capitulo.id })
+  } = useSortable({ id: String(capitulo.id) }) // 🔥 CORREÇÃO
 
 
   const style = {
